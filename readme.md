@@ -18,7 +18,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
-    permissions: none
+    permissions: read-all
 
     steps:
       - name: Checkout
