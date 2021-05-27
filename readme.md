@@ -30,7 +30,7 @@ jobs:
           node-version: 14.x
 
       - name: Deploy GitHub Actions allow list
-        uses: ./.github/actions/action-allow-list-as-code
+        uses: ActionsDesk/github-actions-allow-list-as-code-action@v1.0.1
         with:
           token: ${{ secrets.ENTERPRISE_ADMIN_TOKEN }}
           enterprise: 'your-enterprise'
