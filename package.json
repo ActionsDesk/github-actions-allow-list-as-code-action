@@ -1,0 +1,48 @@
+{
+  "name": "github-actions-allow-list-as-code-action",
+  "version": "1.0.0",
+  "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts",
+  "keywords": [
+    "github-enterprise-cloud",
+    "github-actions",
+    "automation",
+    "policy-as-code"
+  ],
+  "author": {
+    "name": "GitHub Professional Services",
+    "email": "services@github.com",
+    "url": "https://services.github.com"
+  },
+  "contributors": [
+    {
+      "name": "Stefan Stölzle",
+      "email": "stoe@github.com",
+      "url": "https://github.com/stoe"
+    }
+  ],
+  "license": "MIT",
+  "repository": "github:ActionsDesk/github-actions-allow-list-as-code-action",
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7"
+  },
+  "main": "index.mjs",
+  "scripts": {
+    "build": "npx @vercel/ncc build index.mjs --out dist --license licenses.txt --quiet --minify",
+    "pretest": "npx eslint-config-prettier .eslintrc.json",
+    "test": "eslint ."
+  },
+  "dependencies": {
+    "@actions/core": "^1.3.0",
+    "@octokit/core": "^3.4.0",
+    "@octokit/plugin-enterprise-cloud": "^5.0.4",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@github/prettier-config": "^0.0.4",
+    "eslint": "^7.27.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-github": "^4.1.3"
+  },
+  "prettier": "@github/prettier-config"
+}

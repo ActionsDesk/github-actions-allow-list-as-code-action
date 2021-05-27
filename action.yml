@@ -1,0 +1,21 @@
+name: 'github-actions-allow-list-as-code-action'
+description: 'Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts'
+
+inputs:
+  token:
+    description: 'GitHub Personal Access Token (PAT) with appropriate enterprise administration scopes'
+    required: true
+  enterprise:
+    description: 'GitHub Enterprise Cloud account slug'
+    required: true
+  allow_list_path:
+    description: 'Path to the GitHub Actions allow list YML within the repository'
+    default: 'github-actions-allow-list.yml'
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'check-circle'
+  color: 'green'
