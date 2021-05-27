@@ -12,8 +12,6 @@ inputs:
     description: 'Path to the GitHub Actions allow list YML within the repository'
     default: 'github-actions-allow-list.yml'
 
-outputs: {}
-
 runs:
   using: 'node12'
   main: 'dist/index.js'
