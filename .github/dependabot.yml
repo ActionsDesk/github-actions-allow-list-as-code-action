@@ -1,0 +1,20 @@
+version: 2
+updates:
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    commit-message:
+      prefix: '🆙 github-action'
+    labels:
+      - 'github-action :robot:'
+
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    commit-message:
+      prefix: '🆙 npm'
+      include: 'scope'
+    labels:
+      - 'dependency :robot:'
