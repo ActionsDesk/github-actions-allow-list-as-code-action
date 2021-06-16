@@ -32,20 +32,22 @@ class ActionPolicy {
    * @param {object} options
    * @param {string} options.token GitHub Personal Access Token
    * @param {string} options.enterprise GitHub Enterprise Cloud slug
+   * @param {string} options.organization GitHub organization slug
    * @param {string} options.allowListPath Path to the GitHub Actions allow list YML within the repository
    */
-  constructor({token, enterprise, allowListPath}) {
+  constructor({token, enterprise, organization, allowListPath}) {
     if (!token) {
       throw new Error('`token` is required')
     }
 
     this.octokit = new MyOctokit({auth: token})
 
-    if (!enterprise) {
-      throw new Error('`enterprise` is required')
+    if (!enterprise && !organization) {
+      throw new Error('`enterprise` or `organization` is required')
     }
 
     this.enterprise = enterprise
+    this.organization = organization
 
     if (!allowListPath) {
       throw new Error('`allowListPath` is required')

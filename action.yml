@@ -7,10 +7,14 @@ inputs:
     required: true
   enterprise:
     description: 'GitHub Enterprise Cloud account slug'
-    required: true
+    required: false
+  organization:
+    description: 'GitHub organization slug'
+    required: false
   allow_list_path:
     description: 'Path to the GitHub Actions allow list YML within the repository'
     default: 'github-actions-allow-list.yml'
+    required: false
 
 runs:
   using: 'node12'
