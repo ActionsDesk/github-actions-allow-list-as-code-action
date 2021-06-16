@@ -43,8 +43,15 @@ jobs:
 | Name              | Description                                                        | Default                         | Required |
 | :---------------- | :----------------------------------------------------------------- | :------------------------------ | :------- |
 | `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` scope |                                 | `true`   |
-| `enterprise`      | GitHub Enterprise Cloud account slug                               |                                 | `true`   |
+| `enterprise`      | GitHub Enterprise Cloud account slug                               |                                 | `false`  |
+| `organization`    | GitHub organization slug                                           |                                 | `false`  |
 | `allow_list_path` | Path to the GitHub Actions allow list YML within the repository    | `github-actions-allow-list.yml` | `false`  |
+
+ℹ️ Notes for providing `enterprise` or `organization`:
+
+- Either provide `enterprise` to update the [GitHub Enterprise Cloud's actions allow list](https://docs.github.com/en/github/setting-up-and-managing-your-enterprise/setting-policies-for-organizations-in-your-enterprise-account/enforcing-github-actions-policies-in-your-enterprise-account#allowing-specific-actions-to-run), or `organization` to update a single [organization's allow list](https://docs.github.com/en/organizations/managing-organization-settings/disabling-or-limiting-github-actions-for-your-organization#allowing-specific-actions-to-run).
+- Providing both will result in the action run failing with `Please provide only one of: enterprise, organization`.
+- If providing `organization`, but the allow list is handled via [GitHub Enterprise Cloud's actions allow list](https://docs.github.com/en/github/setting-up-and-managing-your-enterprise/setting-policies-for-organizations-in-your-enterprise-account/enforcing-github-actions-policies-in-your-enterprise-account#allowing-specific-actions-to-run), the action run will fail with `Selected actions are already set at the enterprise level`.
 
 ## License
 
