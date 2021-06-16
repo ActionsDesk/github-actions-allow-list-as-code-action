@@ -67,48 +67,52 @@ class ActionPolicy {
   async loadCurrentEnterpriseActionsPolicy() {
     const {enterprise, octokit} = this
 
-    // https://docs.github.com/en/rest/reference/enterprise-admin#get-github-actions-permissions-for-an-enterprise
-    const {
-      data: {allowed_actions, enabled_organizations}
-    } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {
-      enterprise
-    })
-
-    if (enabled_organizations === 'none') {
-      throw new Error(`GitHub Actions disabled`)
-    }
-
-    let organizations = enabled_organizations
-
-    if (organizations !== 'all') {
-      // https://docs.github.com/en/rest/reference/enterprise-admin#list-selected-organizations-enabled-for-github-actions-in-an-enterprise
+    try {
+      // https://docs.github.com/en/rest/reference/enterprise-admin#get-github-actions-permissions-for-an-enterprise
       const {
-        data: {organizations: orgs}
-      } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/organizations', {
+        data: {allowed_actions, enabled_organizations}
+      } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {
         enterprise
       })
 
-      organizations = orgs.map(org => org.login)
-    }
+      if (enabled_organizations === 'none') {
+        throw new Error(`GitHub Actions disabled`)
+      }
 
-    // 'allowed_actions' can have the values
-    //    - 'all'
-    //    - 'local_only'
-    //    - 'selected'
-    const actions = allowed_actions
+      let organizations = enabled_organizations
 
-    this.policy = {organizations, actions}
+      if (organizations !== 'all') {
+        // https://docs.github.com/en/rest/reference/enterprise-admin#list-selected-organizations-enabled-for-github-actions-in-an-enterprise
+        const {
+          data: {organizations: orgs}
+        } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/organizations', {
+          enterprise
+        })
 
-    // if 'selected' is the permission for GitHub Actions, get additional details
-    if (actions === 'selected') {
-      // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
-      const {data} = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/selected-actions', {
-        enterprise
-      })
+        organizations = orgs.map(org => org.login)
+      }
 
-      this.policy.selected = data
-    } else {
-      throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+      // 'allowed_actions' can have the values
+      //    - 'all'
+      //    - 'local_only'
+      //    - 'selected'
+      const actions = allowed_actions
+
+      this.policy = {organizations, actions}
+
+      // if 'selected' is the permission for GitHub Actions, get additional details
+      if (actions === 'selected') {
+        // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
+        const {data} = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/selected-actions', {
+          enterprise
+        })
+
+        this.policy.selected = data
+      } else {
+        throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+      }
+    } catch (error) {
+      if (error.status === 404) throw new Error(`${enterprise} is not a GitHub Enterprise Cloud account`)
     }
   }
 
@@ -153,31 +157,35 @@ class ActionPolicy {
   async loadCurrentOrganizationActionsPolicy() {
     const {organization, octokit} = this
 
-    // https://docs.github.com/en/rest/reference/actions#get-github-actions-permissions-for-an-organization
-    const {
-      data: {allowed_actions}
-    } = await octokit.request('GET /orgs/{org}/actions/permissions', {
-      org: organization
-    })
-
-    // 'allowed_actions' can have the values
-    //    - 'all'
-    //    - 'local_only'
-    //    - 'selected'
-    const actions = allowed_actions
-
-    this.policy = {organization, actions}
-
-    // if 'selected' is the permission for GitHub Actions, get additional details
-    if (actions === 'selected') {
-      // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
-      const {data} = await octokit.request('GET /orgs/{org}/actions/permissions/selected-actions', {
+    try {
+      // https://docs.github.com/en/rest/reference/actions#get-github-actions-permissions-for-an-organization
+      const {
+        data: {allowed_actions}
+      } = await octokit.request('GET /orgs/{org}/actions/permissions', {
         org: organization
       })
 
-      this.policy.selected = data
-    } else {
-      throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+      // 'allowed_actions' can have the values
+      //    - 'all'
+      //    - 'local_only'
+      //    - 'selected'
+      const actions = allowed_actions
+
+      this.policy = {organization, actions}
+
+      // if 'selected' is the permission for GitHub Actions, get additional details
+      if (actions === 'selected') {
+        // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
+        const {data} = await octokit.request('GET /orgs/{org}/actions/permissions/selected-actions', {
+          org: organization
+        })
+
+        this.policy.selected = data
+      } else {
+        throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+      }
+    } catch (error) {
+      if (error.status === 404) throw new Error(`${organization} is not a GitHub organization account`)
     }
   }
 
