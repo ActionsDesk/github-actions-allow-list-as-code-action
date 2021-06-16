@@ -7,7 +7,7 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
   try {
     const token = getInput('token', {required: true})
     const enterprise = getInput('enterprise', {required: false}) || null
-    const organization = getInput('organization', {required: organization}) || null
+    const organization = getInput('organization', {required: false}) || null
 
     if (enterprise && organization) {
       throw new Error('Please provide only one of: enterprise, organization')
