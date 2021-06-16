@@ -113,6 +113,7 @@ class ActionPolicy {
       }
     } catch (error) {
       if (error.status === 404) throw new Error(`${enterprise} is not a GitHub Enterprise Cloud account`)
+      else throw error
     }
   }
 
@@ -171,6 +172,10 @@ class ActionPolicy {
       //    - 'selected'
       const actions = allowed_actions
 
+      if (actions === undefined) {
+        throw new Error(`GitHub Actions disabled`)
+      }
+
       this.policy = {organization, actions}
 
       // if 'selected' is the permission for GitHub Actions, get additional details
@@ -186,6 +191,7 @@ class ActionPolicy {
       }
     } catch (error) {
       if (error.status === 404) throw new Error(`${organization} is not a GitHub organization account`)
+      else throw error
     }
   }
 
