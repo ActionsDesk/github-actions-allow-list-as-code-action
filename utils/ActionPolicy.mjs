@@ -132,11 +132,80 @@ class ActionPolicy {
           enterprise,
           patterns_allowed
         })
+
         if (status !== 204) {
           throw new Error(`Failed to update GitHub Actions allow list!`)
         }
       } catch (error) {
         throw new Error(`Failed to update GitHub Actions allow list!`)
+      }
+    }
+
+    selected.patterns_allowed = patterns_allowed
+
+    return true
+  }
+
+  /**
+   * @readonly
+   * @throws
+   */
+  async loadCurrentOrganizationActionsPolicy() {
+    const {organization, octokit} = this
+
+    // https://docs.github.com/en/rest/reference/actions#get-github-actions-permissions-for-an-organization
+    const {
+      data: {allowed_actions}
+    } = await octokit.request('GET /orgs/{org}/actions/permissions', {
+      org: organization
+    })
+
+    // 'allowed_actions' can have the values
+    //    - 'all'
+    //    - 'local_only'
+    //    - 'selected'
+    const actions = allowed_actions
+
+    this.policy = {organization, actions}
+
+    // if 'selected' is the permission for GitHub Actions, get additional details
+    if (actions === 'selected') {
+      // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
+      const {data} = await octokit.request('GET /orgs/{org}/actions/permissions/selected-actions', {
+        org: organization
+      })
+
+      this.policy.selected = data
+    } else {
+      throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+    }
+  }
+
+  /**
+   * @readonly
+   * @throws
+   * @returns {boolean}
+   */
+  async updateOrganizationActionsAllowList() {
+    const {
+      organization,
+      octokit,
+      policy: {actions, selected},
+      allowList: patterns_allowed
+    } = this
+
+    if (actions === 'selected' && selected.patterns_allowed) {
+      try {
+        const {status} = await octokit.request('PUT /orgs/{org}/actions/permissions/selected-actions', {
+          org: organization,
+          patterns_allowed
+        })
+
+        if (status !== 204) {
+          throw new Error(`Failed to update GitHub Actions allow list!`)
+        }
+      } catch (error) {
+        throw new Error(error.errors || `Failed to update GitHub Actions allow list!`)
       }
     }
 

@@ -31,13 +31,15 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
     })
 
     // load current policy
-    await ap.loadCurrentEnterpriseActionsPolicy()
+    if (enterprise) await ap.loadCurrentEnterpriseActionsPolicy()
+    if (organization) await ap.loadCurrentOrganizationActionsPolicy()
 
     // load updated allow list from YAML
     await ap.loadAllowListYAML()
 
     // save new policy
-    await ap.updateEnterpriseActionsAllowList()
+    if (enterprise) await ap.updateEnterpriseActionsAllowList()
+    if (organization) await ap.updateOrganizationActionsAllowList()
 
     setOutput(`GitHub Actions allow list updated for ${enterprise || organization}`)
   } catch (error) {
