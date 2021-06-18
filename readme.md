@@ -30,7 +30,7 @@ jobs:
           node-version: 14.x
 
       - name: Deploy GitHub Actions allow list
-        uses: ActionsDesk/github-actions-allow-list-as-code-action@v1.0.1
+        uses: ActionsDesk/github-actions-allow-list-as-code-action@v1.1.0
         with:
           token: ${{ secrets.ENTERPRISE_ADMIN_TOKEN }}
           enterprise: 'your-enterprise'
@@ -40,12 +40,12 @@ jobs:
 
 ### Action Inputs
 
-| Name              | Description                                                        | Default                         | Required |
-| :---------------- | :----------------------------------------------------------------- | :------------------------------ | :------- |
-| `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` scope |                                 | `true`   |
-| `enterprise`      | GitHub Enterprise Cloud account slug                               |                                 | `false`  |
-| `organization`    | GitHub organization slug                                           |                                 | `false`  |
-| `allow_list_path` | Path to the GitHub Actions allow list YML within the repository    | `github-actions-allow-list.yml` | `false`  |
+| Name              | Description                                                                       | Default                         | Required |
+| :---------------- | :-------------------------------------------------------------------------------- | :------------------------------ | :------- |
+| `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` or `admin:org` scope |                                 | `true`   |
+| `enterprise`      | GitHub Enterprise Cloud account slug                                              |                                 | `false`  |
+| `organization`    | GitHub organization slug                                                          |                                 | `false`  |
+| `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                   | `github-actions-allow-list.yml` | `false`  |
 
 ℹ️ Notes for providing `enterprise` or `organization`:
 
