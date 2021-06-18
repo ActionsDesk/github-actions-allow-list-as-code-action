@@ -6,7 +6,13 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
 ;(async () => {
   try {
     const token = getInput('token', {required: true})
-    const enterprise = getInput('enterprise', {required: true})
+    const enterprise = getInput('enterprise', {required: false}) || null
+    const organization = getInput('organization', {required: false}) || null
+
+    if (enterprise && organization) {
+      throw new Error('Please provide only one of: enterprise, organization')
+    }
+
     const allowList = getInput('allow_list_path')
     const workspace = process.env.GITHUB_WORKSPACE
 
@@ -20,19 +26,22 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
     const ap = new ActionPolicy({
       token,
       enterprise,
+      organization,
       allowListPath
     })
 
     // load current policy
-    await ap.loadCurrentEnterpriseActionsPolicy()
+    if (enterprise) await ap.loadCurrentEnterpriseActionsPolicy()
+    if (organization) await ap.loadCurrentOrganizationActionsPolicy()
 
     // load updated allow list from YAML
     await ap.loadAllowListYAML()
 
     // save new policy
-    await ap.updateEnterpriseActionsAllowList()
+    if (enterprise) await ap.updateEnterpriseActionsAllowList()
+    if (organization) await ap.updateOrganizationActionsAllowList()
 
-    setOutput(`GitHub Actions allow list updated`)
+    setOutput(`GitHub Actions allow list updated for ${enterprise || organization}`)
   } catch (error) {
     setFailed(error.message)
   }
