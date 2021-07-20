@@ -3,16 +3,16 @@ updates:
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
     commit-message:
-      prefix: '🆙 github-action'
+      prefix: '🆙 action'
     labels:
       - 'github-action :robot:'
 
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'monthly'
     commit-message:
       prefix: '🆙 npm'
       include: 'scope'
