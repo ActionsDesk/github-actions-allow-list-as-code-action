@@ -33,7 +33,7 @@
     "test": "eslint ."
   },
   "dependencies": {
-    "@actions/core": "^1.7.0",
+    "@actions/core": "^1.8.2",
     "@octokit/core": "^3.6.0",
     "@octokit/plugin-enterprise-cloud": "^6.0.0",
     "js-yaml": "^4.1.0"
