@@ -53,7 +53,7 @@ jobs:
 - Providing both will result in the action run failing with `Please provide only one of: enterprise, organization`.
 - If providing `organization`, but the allow list is handled via [GitHub Enterprise Cloud's actions allow list](https://docs.github.com/en/github/setting-up-and-managing-your-enterprise/setting-policies-for-organizations-in-your-enterprise-account/enforcing-github-actions-policies-in-your-enterprise-account#allowing-specific-actions-to-run), the action run will fail with `Selected actions are already set at the enterprise level`.
 
-## Allow list file
+## Allow List file
 
 Example content for Allow List file containing `actions:` key and list with two allowed actions.
 
