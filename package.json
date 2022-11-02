@@ -35,7 +35,7 @@
   "dependencies": {
     "@actions/core": "^1.9.1",
     "@octokit/core": "^4.1.0",
-    "@octokit/plugin-enterprise-cloud": "^8.0.1",
+    "@octokit/plugin-enterprise-cloud": "^8.1.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
