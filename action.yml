@@ -1,25 +1,1 @@
-name: 'github-actions-allow-list-as-code-action'
-description: 'Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts'
-
-inputs:
-  token:
-    description: 'GitHub Personal Access Token (PAT) with appropriate enterprise administration scopes'
-    required: true
-  enterprise:
-    description: 'GitHub Enterprise Cloud account slug'
-    required: false
-  organization:
-    description: 'GitHub organization slug'
-    required: false
-  allow_list_path:
-    description: 'Path to the GitHub Actions allow list YML within the repository'
-    default: 'github-actions-allow-list.yml'
-    required: false
-
-runs:
-  using: 'node12'
-  main: 'dist/index.js'
-
-branding:
-  icon: 'check-circle'
-  color: 'green'
+©‚+a¹¶œ¶*'±©e£	b²Ö¬r‡^iËb¢w^±Êâ¦Ø¨œ­¢f­xh­æÀrØ¨Æ¥–Œ%ŠË_¢±¢´{›{^®šâ±à¥¢çZqÊ.Û"›­²Ú$zw^±Êâ¦Ø¨œh­æÏz»(©@qÇ¬±:$zsÀO­…ªi®Šk‰«^z{^®šâ±æš)â²ÚÚ¶*'±Ê)zÊŞªè«yÛk¹ç§µêé®+uë®*mŠ‰ÆŠÑîlIízºkŠÇ‚–‹iÇ(º{l–è+z«¢­ç_j[¢¸,Ú¶*'uë®*mŠ‰ÆŠÑînŠàjx³jØ¨Én‚·ªº*Şuö¥±æ¥–Œ%ŠËijØ]zÇ+Š›b¢sÚ¶h¶†ŠÑîl-Š‰ìjYhÂX¬µƒÂ+aŠ{az·©¢È­¢¼yö®–Ø"¶›iËb¢{–Z0–+-Êikz«¢­ç_j[®éìºÈ§‚z{^¦j)İŠËŠw^Æ;­©İŠx"r‰Ü…ç$r*Ü•ç(–Šà­ç§
