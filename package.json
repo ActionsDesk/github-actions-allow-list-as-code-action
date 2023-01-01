@@ -42,7 +42,7 @@
     "@github/prettier-config": "^0.0.4",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-github": "^4.4.0"
+    "eslint-plugin-github": "^4.6.0"
   },
   "prettier": "@github/prettier-config"
 }
