@@ -39,7 +39,7 @@
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
-    "@github/prettier-config": "^0.0.4",
+    "@github/prettier-config": "^0.0.6",
     "eslint": "^8.26.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-github": "^4.4.0"
