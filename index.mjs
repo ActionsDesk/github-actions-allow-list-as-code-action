@@ -8,6 +8,7 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
     const token = getInput('token', {required: true})
     const enterprise = getInput('enterprise', {required: false}) || null
     const organization = getInput('organization', {required: false}) || null
+    const ghApiUrl = getInput('gh_api_url', {required: false}) || "https://api.github.com"
 
     if (enterprise && organization) {
       throw new Error('Please provide only one of: enterprise, organization')
@@ -27,7 +28,8 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
       token,
       enterprise,
       organization,
-      allowListPath
+      allowListPath,
+      ghApiUrl,
     })
 
     // load current policy

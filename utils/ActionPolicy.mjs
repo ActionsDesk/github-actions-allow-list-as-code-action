@@ -3,11 +3,7 @@ import {Octokit} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
 import {load} from 'js-yaml'
 
-const MyOctokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-  baseUrl: process.env.GITHUB_API_URL ?? 'https://api.github.com'
-})
-MyOctokit = Octokit.plugin(enterpriseCloud)
+const MyOctokit = Octokit.plugin(enterpriseCloud)
 
 class ActionPolicy {
   /**
@@ -39,12 +35,18 @@ class ActionPolicy {
    * @param {string} options.organization GitHub organization slug
    * @param {string} options.allowListPath Path to the GitHub Actions allow list YML within the repository
    */
-  constructor({token, enterprise, organization, allowListPath}) {
+  constructor({token, enterprise, organization, allowListPath, ghApiUrl}) {
     if (!token) {
       throw new Error('`token` is required')
     }
 
-    this.octokit = new MyOctokit({auth: token})
+    this.octokit = new MyOctokit({
+        auth: token,
+        baseUrl: ghApiUrl ?? 'https://api.github.com'
+      })
+
+    MyOctokit = Octokit.plugin(enterpriseCloud)
+    
 
     if (!enterprise && !organization) {
       throw new Error('`enterprise` or `organization` is required')

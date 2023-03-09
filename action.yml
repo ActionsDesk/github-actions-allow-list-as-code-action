@@ -15,6 +15,9 @@ inputs:
     description: 'Path to the GitHub Actions allow list YML within the repository'
     default: 'github-actions-allow-list.yml'
     required: false
+  gh_api_url:
+    description: 'GitHub Enterprise Server API URL'
+    required: false
 
 runs:
   using: 'node16'
