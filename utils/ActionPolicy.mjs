@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs'
-import {Octokit} from '@octokit/core'
+import {Octokit, info} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
 import {load} from 'js-yaml'
 
@@ -34,6 +34,7 @@ class ActionPolicy {
    * @param {string} options.enterprise GitHub Enterprise Cloud slug
    * @param {string} options.organization GitHub organization slug
    * @param {string} options.allowListPath Path to the GitHub Actions allow list YML within the repository
+   * @param {string} options.ghApiUrl GitHub API URL - defaults to https://api.github.com
    */
   constructor({token, enterprise, organization, allowListPath, ghApiUrl}) {
     if (!token) {
@@ -42,11 +43,9 @@ class ActionPolicy {
 
     this.octokit = new MyOctokit({
         auth: token,
-        baseUrl: ghApiUrl ?? 'https://api.github.com'
+        baseUrl: ghApiUrl
       })
-
-    MyOctokit = Octokit.plugin(enterpriseCloud)
-    
+    info(`GitHub API URL: ${ghApiUrl}`)
 
     if (!enterprise && !organization) {
       throw new Error('`enterprise` or `organization` is required')

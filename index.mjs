@@ -1,5 +1,5 @@
 import {join, parse} from 'path'
-import {getInput, setFailed, setOutput} from '@actions/core'
+import {getInput, setFailed, setOutput, info} from '@actions/core'
 import ActionPolicy from './utils/ActionPolicy.mjs'
 
 // action
@@ -35,13 +35,17 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
     // load current policy
     if (enterprise) await ap.loadCurrentEnterpriseActionsPolicy()
     if (organization) await ap.loadCurrentOrganizationActionsPolicy()
+    info(`Existing GitHub Actions allow list loaded for ${enterprise || organization}`)
+    
 
     // load updated allow list from YAML
     await ap.loadAllowListYAML()
+    info(`Loaded updated allow list from file ${allowListPath}`)
 
     // save new policy
     if (enterprise) await ap.updateEnterpriseActionsAllowList()
     if (organization) await ap.updateOrganizationActionsAllowList()
+    info(`GitHub Actions allow list updated for ${enterprise || organization}`)
 
     setOutput(`GitHub Actions allow list updated for ${enterprise || organization}`)
   } catch (error) {
