@@ -3,7 +3,11 @@ import {Octokit} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
 import {load} from 'js-yaml'
 
-const MyOctokit = Octokit.plugin(enterpriseCloud)
+const MyOctokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN,
+  baseUrl: process.env.GITHUB_API_URL ?? 'https://api.github.com'
+})
+MyOctokit = Octokit.plugin(enterpriseCloud)
 
 class ActionPolicy {
   /**
