@@ -50,5 +50,6 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
     setOutput(`GitHub Actions allow list updated for ${enterprise || organization}`)
   } catch (error) {
     setFailed(error.message)
+    info(`GitHub Actions allow list update failed for ${enterprise || organization} with error: ${error.message}`)
   }
 })()

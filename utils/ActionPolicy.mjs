@@ -1,5 +1,6 @@
 import {readFileSync} from 'fs'
-import {Octokit, info} from '@octokit/core'
+import {Octokit} from '@octokit/core'
+import {info} from '@actions/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
 import {load} from 'js-yaml'
 
