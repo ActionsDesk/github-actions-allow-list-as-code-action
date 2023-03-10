@@ -1,7 +1,7 @@
 {
   "name": "github-actions-allow-list-as-code-action",
   "version": "1.2.0",
-  "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts",
+  "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud and Server accounts",
   "keywords": [
     "github-enterprise-cloud",
     "github-actions",
@@ -18,6 +18,11 @@
       "name": "Stefan Stölzle",
       "email": "stoe@github.com",
       "url": "https://github.com/stoe"
+    },
+    {
+      "name": "Stefan Petrushevski",
+      "email": "theztefan@github.com",
+      "url": "https://github.com/theztefan"
     }
   ],
   "license": "MIT",
