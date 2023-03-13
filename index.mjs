@@ -35,7 +35,7 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
     // load current policy
     if (enterprise) await ap.loadCurrentEnterpriseActionsPolicy()
     if (organization) await ap.loadCurrentOrganizationActionsPolicy()
-    info(`✅ Loaded Existing GitHub Actions allow list loaded for ${enterprise || organization}`)
+    info(`✅ Loaded Existing GitHub Actions allow list for ${enterprise || organization}`)
 
     // load updated allow list from YAML
     await ap.loadAllowListYAML()
