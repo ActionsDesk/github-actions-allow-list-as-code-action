@@ -45,7 +45,7 @@ jobs:
 | :---------------- | :--------------------------------------------------------------------------------------------------------------- | :------------------------------ | :------- |
 | `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` or `admin:org` scope                                |                                 | `true`   |
 | `organization`    | GitHub organization slug                                                                                         |                                 | `false`  |
-| `enterprise`      | GitHub Enterprise account slug                                                                             |                                 | `false`  |
+| `enterprise`      | GitHub Enterprise account slug                                                                                   |                                 | `false`  |
 | `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                                                  | `github-actions-allow-list.yml` | `false`  |
 | `gh_api_url`      | GitHub Enterprise Servier - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `https://api.github.com`        | `false`  |
 
