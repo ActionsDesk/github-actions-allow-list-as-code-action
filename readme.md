@@ -1,6 +1,6 @@
 # github-actions-allow-list-as-code-action
 
-> Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts
+> Automate GitHub Actions allow list for GitHub Enterprise accounts
 
 [![test](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/test.yml/badge.svg)](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/test.yml) [![codeql](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/codeql.yml/badge.svg)](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/codeql.yml) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
@@ -36,16 +36,18 @@ jobs:
           enterprise: 'your-enterprise'
           # same as defined under `on.pull_requests.paths`
           allow_list_path: github-actions-allow-list.yml
+          # gh_api_url: 'https://github.example.com/api/v3' # Only required for GitHub Enterprise Server
 ```
 
 ### Action Inputs
 
-| Name              | Description                                                                       | Default                         | Required |
-| :---------------- | :-------------------------------------------------------------------------------- | :------------------------------ | :------- |
-| `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` or `admin:org` scope |                                 | `true`   |
-| `enterprise`      | GitHub Enterprise Cloud account slug                                              |                                 | `false`  |
-| `organization`    | GitHub organization slug                                                          |                                 | `false`  |
-| `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                   | `github-actions-allow-list.yml` | `false`  |
+| Name              | Description                                                                                                      | Default                         | Required |
+| :---------------- | :--------------------------------------------------------------------------------------------------------------- | :------------------------------ | :------- |
+| `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` or `admin:org` scope                                |                                 | `true`   |
+| `organization`    | GitHub organization slug                                                                                         |                                 | `false`  |
+| `enterprise`      | GitHub Enterprise account slug                                                                                   |                                 | `false`  |
+| `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                                                  | `github-actions-allow-list.yml` | `false`  |
+| `gh_api_url`      | GitHub Enterprise Servier - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `https://api.github.com`        | `false`  |
 
 ℹ️ Notes for providing `enterprise` or `organization`:
 

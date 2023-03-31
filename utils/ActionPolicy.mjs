@@ -34,23 +34,27 @@ class ActionPolicy {
    * @param {string} options.enterprise GitHub Enterprise Cloud slug
    * @param {string} options.organization GitHub organization slug
    * @param {string} options.allowListPath Path to the GitHub Actions allow list YML within the repository
+   * @param {string} options.ghApiUrl GitHub API URL - defaults to https://api.github.com
    */
-  constructor({token, enterprise, organization, allowListPath}) {
+  constructor({token, enterprise, organization, allowListPath, ghApiUrl}) {
     if (!token) {
-      throw new Error('`token` is required')
+      throw new Error('❗ `token` is required')
     }
 
-    this.octokit = new MyOctokit({auth: token})
+    this.octokit = new MyOctokit({
+      auth: token,
+      baseUrl: ghApiUrl,
+    })
 
     if (!enterprise && !organization) {
-      throw new Error('`enterprise` or `organization` is required')
+      throw new Error('❗ `enterprise` or `organization` is required')
     }
 
     this.enterprise = enterprise
     this.organization = organization
 
     if (!allowListPath) {
-      throw new Error('`allowListPath` is required')
+      throw new Error('❗ `allowListPath` is required')
     }
 
     this.allowListPath = allowListPath
@@ -70,13 +74,13 @@ class ActionPolicy {
     try {
       // https://docs.github.com/en/rest/reference/enterprise-admin#get-github-actions-permissions-for-an-enterprise
       const {
-        data: {allowed_actions, enabled_organizations}
+        data: {allowed_actions, enabled_organizations},
       } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {
-        enterprise
+        enterprise,
       })
 
       if (enabled_organizations === 'none') {
-        throw new Error(`GitHub Actions disabled`)
+        throw new Error(`❗ GitHub Actions disabled`)
       }
 
       let organizations = enabled_organizations
@@ -84,9 +88,9 @@ class ActionPolicy {
       if (organizations !== 'all') {
         // https://docs.github.com/en/rest/reference/enterprise-admin#list-selected-organizations-enabled-for-github-actions-in-an-enterprise
         const {
-          data: {organizations: orgs}
+          data: {organizations: orgs},
         } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/organizations', {
-          enterprise
+          enterprise,
         })
 
         organizations = orgs.map(org => org.login)
@@ -104,12 +108,14 @@ class ActionPolicy {
       if (actions === 'selected') {
         // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
         const {data} = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/selected-actions', {
-          enterprise
+          enterprise,
         })
 
         this.policy.selected = data
       } else {
-        throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+        throw new Error(
+          '❗ GitHub Actions allow list automation is only possible with "Allow select actions" selected!',
+        )
       }
     } catch (error) {
       if (error.status === 404) throw new Error(`${enterprise} is not a GitHub Enterprise Cloud account`)
@@ -127,7 +133,7 @@ class ActionPolicy {
       enterprise,
       octokit,
       policy: {actions, selected},
-      allowList: patterns_allowed
+      allowList: patterns_allowed,
     } = this
 
     if (actions === 'selected' && selected.patterns_allowed) {
@@ -135,14 +141,14 @@ class ActionPolicy {
         // https://docs.github.com/en/rest/reference/enterprise-admin#set-allowed-actions-for-an-enterprise
         const {status} = await octokit.request('PUT /enterprises/{enterprise}/actions/permissions/selected-actions', {
           enterprise,
-          patterns_allowed
+          patterns_allowed,
         })
 
         if (status !== 204) {
-          throw new Error(`Failed to update GitHub Actions allow list!`)
+          throw new Error(`❗ Failed to update GitHub Actions allow list!`)
         }
       } catch (error) {
-        throw new Error(`Failed to update GitHub Actions allow list!`)
+        throw new Error(`❗ Failed to update GitHub Actions allow list!`)
       }
     }
 
@@ -161,9 +167,9 @@ class ActionPolicy {
     try {
       // https://docs.github.com/en/rest/reference/actions#get-github-actions-permissions-for-an-organization
       const {
-        data: {allowed_actions}
+        data: {allowed_actions},
       } = await octokit.request('GET /orgs/{org}/actions/permissions', {
-        org: organization
+        org: organization,
       })
 
       // 'allowed_actions' can have the values
@@ -173,7 +179,7 @@ class ActionPolicy {
       const actions = allowed_actions
 
       if (actions === undefined) {
-        throw new Error(`GitHub Actions disabled`)
+        throw new Error(`❗ GitHub Actions disabled`)
       }
 
       this.policy = {organization, actions}
@@ -182,12 +188,14 @@ class ActionPolicy {
       if (actions === 'selected') {
         // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
         const {data} = await octokit.request('GET /orgs/{org}/actions/permissions/selected-actions', {
-          org: organization
+          org: organization,
         })
 
         this.policy.selected = data
       } else {
-        throw new Error('GitHub Actions allow list automation is only possible with "Allow select actions" selected!')
+        throw new Error(
+          '❗ GitHub Actions allow list automation is only possible with "Allow select actions" selected!',
+        )
       }
     } catch (error) {
       if (error.status === 404) throw new Error(`${organization} is not a GitHub organization account`)
@@ -205,21 +213,21 @@ class ActionPolicy {
       organization,
       octokit,
       policy: {actions, selected},
-      allowList: patterns_allowed
+      allowList: patterns_allowed,
     } = this
 
     if (actions === 'selected' && selected.patterns_allowed) {
       try {
         const {status} = await octokit.request('PUT /orgs/{org}/actions/permissions/selected-actions', {
           org: organization,
-          patterns_allowed
+          patterns_allowed,
         })
 
         if (status !== 204) {
-          throw new Error(`Failed to update GitHub Actions allow list!`)
+          throw new Error(`❗ Failed to update GitHub Actions allow list!`)
         }
       } catch (error) {
-        throw new Error(error.errors || `Failed to update GitHub Actions allow list!`)
+        throw new Error(error.errors || `❗ Failed to update GitHub Actions allow list!`)
       }
     }
 

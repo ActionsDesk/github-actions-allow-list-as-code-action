@@ -1,12 +1,12 @@
 name: 'github-actions-allow-list-as-code-action'
-description: 'Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts'
+description: 'Automate GitHub Actions allow list for GitHub Enterprise Cloud and Server accounts'
 
 inputs:
   token:
     description: 'GitHub Personal Access Token (PAT) with appropriate enterprise administration scopes'
     required: true
   enterprise:
-    description: 'GitHub Enterprise Cloud account slug'
+    description: 'GitHub Enterprise account slug'
     required: false
   organization:
     description: 'GitHub organization slug'
@@ -15,10 +15,13 @@ inputs:
     description: 'Path to the GitHub Actions allow list YML within the repository'
     default: 'github-actions-allow-list.yml'
     required: false
+  gh_api_url:
+    description: 'GitHub Enterprise Server API URL'
+    required: false
 
 runs:
   using: 'node16'
-  main: 'dist/index.js'
+  main: 'dist/index.mjs'
 
 branding:
   icon: 'check-circle'
