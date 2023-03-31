@@ -45,9 +45,9 @@
   },
   "devDependencies": {
     "@github/prettier-config": "^0.0.6",
-    "eslint": "^8.35.0",
-    "eslint-config-prettier": "^8.6.0",
-    "eslint-plugin-github": "^4.6.1"
+    "eslint": "^8.37.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-github": "^4.7.0"
   },
   "prettier": "@github/prettier-config"
 }
