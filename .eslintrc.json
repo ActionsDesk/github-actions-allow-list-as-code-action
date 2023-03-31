@@ -10,7 +10,12 @@
   "plugins": ["github"],
   "extends": ["plugin:github/recommended"],
   "rules": {
-    "camelcase": ["error", {"allow": [""]}],
+    "camelcase": [
+      "error",
+      {
+        "allow": [""]
+      }
+    ],
     "no-console": "off"
   }
 }
