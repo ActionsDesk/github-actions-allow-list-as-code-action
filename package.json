@@ -33,7 +33,7 @@
   },
   "main": "action.js",
   "scripts": {
-    "build": "npx @vercel/ncc build action.js --out dist --license licenses.txt --quiet --minify",
+    "build": "npx @vercel/ncc build action.js -o dist -q -m -s --license licenses.txt",
     "format": "npx prettier --config-precedence prefer-file --write . && eslint . --fix",
     "prebuild": "rimraf dist",
     "prepare": "husky install ./.github/husky",
