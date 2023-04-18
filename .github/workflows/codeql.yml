@@ -21,12 +21,12 @@ jobs:
         language: ['javascript']
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
 
-      - uses: github/codeql-action/init@v2
+      - uses: github/codeql-action/init@bb28e7e59e2ad6c1e5400e671795b2fa1b2fca6f
         with:
           languages: ${{ matrix.language }}
 
-      - uses: github/codeql-action/autobuild@v2
+      - uses: github/codeql-action/autobuild@bb28e7e59e2ad6c1e5400e671795b2fa1b2fca6f
 
-      - uses: github/codeql-action/analyze@v2
+      - uses: github/codeql-action/analyze@bb28e7e59e2ad6c1e5400e671795b2fa1b2fca6f
