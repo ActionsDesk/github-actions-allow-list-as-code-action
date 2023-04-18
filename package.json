@@ -1,6 +1,6 @@
 {
   "name": "github-actions-allow-list-as-code-action",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud and Server accounts",
   "keywords": [
     "github-enterprise-cloud",
@@ -49,11 +49,11 @@
   "devDependencies": {
     "@github/prettier-config": "^0.0.6",
     "@vercel/ncc": "^0.36.1",
-    "eslint": "^8.37.0",
+    "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-github": "^4.7.0",
     "husky": "^8.0.3",
-    "rimraf": "^4.4.1"
+    "rimraf": "^5.0.0"
   },
   "husky": {
     "hooks": {
