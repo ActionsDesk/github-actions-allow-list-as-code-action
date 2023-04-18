@@ -15,6 +15,11 @@ jobs:
       contents: read
       security-events: write
 
+    env:
+      CI: true
+      LGTM_INDEX_FILTERS: |
+        exclude:*/dist/*
+
     strategy:
       fail-fast: false
       matrix:
