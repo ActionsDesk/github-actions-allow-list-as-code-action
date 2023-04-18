@@ -1,6 +1,6 @@
 import {join, parse} from 'path'
 import {getInput, setFailed, setOutput, info} from '@actions/core'
-import ActionPolicy from './utils/ActionPolicy.mjs'
+import ActionPolicy from './utils/ActionPolicy'
 
 // action
 ;(async () => {

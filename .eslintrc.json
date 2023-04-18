@@ -16,6 +16,7 @@
         "allow": [""]
       }
     ],
-    "no-console": "off"
+    "no-console": "off",
+    "filenames/match-regex": "off"
   }
 }
