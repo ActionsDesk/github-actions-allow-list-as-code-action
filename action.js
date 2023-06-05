@@ -1,5 +1,5 @@
 import {join, parse} from 'path'
-import {getInput, setFailed, setOutput, info} from '@actions/core'
+import {getInput, isDebug, setFailed, setOutput, info} from '@actions/core'
 import ActionPolicy from './utils/ActionPolicy'
 
 // action
@@ -47,6 +47,11 @@ import ActionPolicy from './utils/ActionPolicy'
     info(`✅ Updated GitHub Actions allow list for ${enterprise || organization}`)
     setOutput('output', `GitHub Actions allow list updated for ${enterprise || organization}`)
   } catch (error) {
+    if (isDebug()) {
+      // print stack trace
+      console.error(error.stack)
+    }
+
     info(`❗ GitHub Actions allow list update failed with error: ${error.message}`)
     setFailed(error.message)
   }
