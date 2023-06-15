@@ -23,6 +23,11 @@
       "name": "Stefan Petrushevski",
       "email": "theztefan@github.com",
       "url": "https://github.com/theztefan"
+    },
+    {
+      "name": "Damien Hardy",
+      "email": "digimangos@github.com",
+      "url": "https://github.com/digimangos"
     }
   ],
   "license": "MIT",
@@ -53,7 +58,8 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-github": "^4.7.0",
     "husky": "^8.0.3",
-    "rimraf": "^5.0.0"
+    "rimraf": "^5.0.0",
+    "proxy-agent": "^6.2.1"
   },
   "husky": {
     "hooks": {

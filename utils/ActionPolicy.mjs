@@ -2,7 +2,7 @@ import {readFileSync} from 'fs'
 import {Octokit} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
 import {load} from 'js-yaml'
-import ProxyAgent from 'proxy-agent';
+import ProxyAgent from 'proxy-agent'
 
 const MyOctokit = Octokit.plugin(enterpriseCloud)
 
@@ -47,7 +47,7 @@ class ActionPolicy {
       baseUrl: ghApiUrl,
       request: {
         agent: new ProxyAgent(),
-      }
+      },
     })
 
     if (!enterprise && !organization) {
