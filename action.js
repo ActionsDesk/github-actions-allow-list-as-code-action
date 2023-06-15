@@ -1,5 +1,5 @@
 import {join, parse} from 'path'
-import {getInput, setFailed, setOutput, info} from '@actions/core'
+import {getInput, setFailed, setOutput, info, debug} from '@actions/core'
 import ActionPolicy from './utils/ActionPolicy.mjs'
 
 // action
@@ -49,5 +49,6 @@ import ActionPolicy from './utils/ActionPolicy.mjs'
   } catch (error) {
     info(`❗ GitHub Actions allow list update failed with error: ${error.message}`)
     setFailed(error.message)
+    debug(error.stack)
   }
 })()
