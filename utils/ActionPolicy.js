@@ -1,10 +1,16 @@
 import {readFileSync} from 'fs'
 import {Octokit} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
+import {enterpriseServer38Admin} from '@octokit/plugin-enterprise-server'
 import {load} from 'js-yaml'
 import {ProxyAgent} from 'proxy-agent'
 
-const MyOctokit = Octokit.plugin(enterpriseCloud)
+const MyOctokit = Octokit.defaults({
+  userAgent: 'github-actions-allow-list-as-code',
+  headers: {
+    'X-Github-Next-Global-ID': 1,
+  },
+}).plugin(enterpriseCloud, enterpriseServer38Admin)
 
 class ActionPolicy {
   /**
