@@ -23,6 +23,11 @@
       "name": "Stefan Petrushevski",
       "email": "theztefan@github.com",
       "url": "https://github.com/theztefan"
+    },
+    {
+      "name": "Damien Hardy",
+      "email": "digimangos@github.com",
+      "url": "https://github.com/digimangos"
     }
   ],
   "license": "MIT",
@@ -43,7 +48,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@octokit/core": "^4.2.1",
-    "@octokit/plugin-enterprise-cloud": "^8.2.1",
+    "@octokit/plugin-enterprise-cloud": "^9.1.0",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
@@ -53,7 +58,8 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-github": "^4.8.0",
     "husky": "^8.0.3",
-    "rimraf": "^5.0.1"
+    "rimraf": "^5.0.1",
+    "proxy-agent": "^6.2.1"
   },
   "husky": {
     "hooks": {
