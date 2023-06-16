@@ -6,10 +6,13 @@ import {load} from 'js-yaml'
 import {ProxyAgent} from 'proxy-agent'
 
 const MyOctokit = Octokit.defaults({
-  userAgent: 'github-actions-allow-list-as-code',
   headers: {
     'X-Github-Next-Global-ID': 1,
   },
+  request: {
+    agent: new ProxyAgent(),
+  },
+  userAgent: 'github-actions-allow-list-as-code',
 }).plugin(enterpriseCloud, enterpriseServer38Admin)
 
 class ActionPolicy {
@@ -51,9 +54,6 @@ class ActionPolicy {
     this.octokit = new MyOctokit({
       auth: token,
       baseUrl: ghApiUrl,
-      request: {
-        agent: new ProxyAgent(),
-      },
     })
 
     if (!enterprise && !organization) {
