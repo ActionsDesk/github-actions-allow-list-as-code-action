@@ -54,6 +54,9 @@ class ActionPolicy {
     this.octokit = new MyOctokit({
       auth: token,
       baseUrl: ghApiUrl,
+      request: {
+        agent: new ProxyAgent(),
+      },
     })
 
     if (!enterprise && !organization) {
