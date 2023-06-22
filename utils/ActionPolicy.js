@@ -96,26 +96,13 @@ class ActionPolicy {
         throw new Error(`❗ GitHub Actions disabled`)
       }
 
-      let organizations = enabled_organizations
-
-      if (organizations !== 'all') {
-        // https://docs.github.com/en/rest/reference/enterprise-admin#list-selected-organizations-enabled-for-github-actions-in-an-enterprise
-        const {
-          data: {organizations: orgs},
-        } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/organizations', {
-          enterprise,
-        })
-
-        organizations = orgs.map(org => org.login)
-      }
-
       // 'allowed_actions' can have the values
       //    - 'all'
       //    - 'local_only'
       //    - 'selected'
       const actions = allowed_actions
 
-      this.policy = {organizations, actions}
+      this.policy = {actions}
 
       // if 'selected' is the permission for GitHub Actions, get additional details
       if (actions === 'selected') {
