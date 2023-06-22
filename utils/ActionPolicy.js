@@ -85,7 +85,7 @@ class ActionPolicy {
     const {enterprise, octokit} = this
 
     try {
-      // https://docs.github.com/en/rest/reference/enterprise-admin#get-github-actions-permissions-for-an-enterprise
+      // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-github-actions-permissions-for-an-enterprise
       const {
         data: {allowed_actions, enabled_organizations},
       } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {
@@ -119,7 +119,7 @@ class ActionPolicy {
 
       // if 'selected' is the permission for GitHub Actions, get additional details
       if (actions === 'selected') {
-        // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-allowed-actions-and-reusable-workflows-for-an-enterprise
         const {data} = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/selected-actions', {
           enterprise,
         })
@@ -151,7 +151,7 @@ class ActionPolicy {
 
     if (actions === 'selected' && selected.patterns_allowed) {
       try {
-        // https://docs.github.com/en/rest/reference/enterprise-admin#set-allowed-actions-for-an-enterprise
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#set-allowed-actions-and-reusable-workflows-for-an-enterprise
         const {status} = await octokit.request('PUT /enterprises/{enterprise}/actions/permissions/selected-actions', {
           enterprise,
           patterns_allowed,
