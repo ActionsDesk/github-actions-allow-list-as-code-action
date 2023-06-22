@@ -1,6 +1,6 @@
 {
   "name": "github-actions-allow-list-as-code-action",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud and Server accounts",
   "keywords": [
     "github-enterprise-cloud",
