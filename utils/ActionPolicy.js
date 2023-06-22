@@ -1,10 +1,19 @@
 import {readFileSync} from 'fs'
 import {Octokit} from '@octokit/core'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
+import {enterpriseServer38Admin} from '@octokit/plugin-enterprise-server'
 import {load} from 'js-yaml'
 import {ProxyAgent} from 'proxy-agent'
 
-const MyOctokit = Octokit.plugin(enterpriseCloud)
+const MyOctokit = Octokit.defaults({
+  headers: {
+    'X-Github-Next-Global-ID': 1,
+  },
+  request: {
+    agent: new ProxyAgent(),
+  },
+  userAgent: 'github-actions-allow-list-as-code',
+}).plugin(enterpriseCloud, enterpriseServer38Admin)
 
 class ActionPolicy {
   /**
@@ -76,7 +85,7 @@ class ActionPolicy {
     const {enterprise, octokit} = this
 
     try {
-      // https://docs.github.com/en/rest/reference/enterprise-admin#get-github-actions-permissions-for-an-enterprise
+      // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-github-actions-permissions-for-an-enterprise
       const {
         data: {allowed_actions, enabled_organizations},
       } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {
@@ -87,30 +96,17 @@ class ActionPolicy {
         throw new Error(`❗ GitHub Actions disabled`)
       }
 
-      let organizations = enabled_organizations
-
-      if (organizations !== 'all') {
-        // https://docs.github.com/en/rest/reference/enterprise-admin#list-selected-organizations-enabled-for-github-actions-in-an-enterprise
-        const {
-          data: {organizations: orgs},
-        } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/organizations', {
-          enterprise,
-        })
-
-        organizations = orgs.map(org => org.login)
-      }
-
       // 'allowed_actions' can have the values
       //    - 'all'
       //    - 'local_only'
       //    - 'selected'
       const actions = allowed_actions
 
-      this.policy = {organizations, actions}
+      this.policy = {actions}
 
       // if 'selected' is the permission for GitHub Actions, get additional details
       if (actions === 'selected') {
-        // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-allowed-actions-and-reusable-workflows-for-an-enterprise
         const {data} = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/selected-actions', {
           enterprise,
         })
@@ -142,7 +138,7 @@ class ActionPolicy {
 
     if (actions === 'selected' && selected.patterns_allowed) {
       try {
-        // https://docs.github.com/en/rest/reference/enterprise-admin#set-allowed-actions-for-an-enterprise
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#set-allowed-actions-and-reusable-workflows-for-an-enterprise
         const {status} = await octokit.request('PUT /enterprises/{enterprise}/actions/permissions/selected-actions', {
           enterprise,
           patterns_allowed,
