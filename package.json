@@ -59,7 +59,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-github": "^4.8.0",
     "husky": "^8.0.3",
-    "proxy-agent": "^6.2.1",
+    "proxy-agent": "^6.3.0",
     "rimraf": "^5.0.1"
   },
   "husky": {
