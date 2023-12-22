@@ -22,15 +22,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3.6.0
 
       - name: Setup node
-        uses: actions/setup-node@v2.1.5
+        uses: actions/setup-node@v3.8.2
         with:
-          node-version: 14.x
+          node-version: 16.x
 
       - name: Deploy GitHub Actions allow list
-        uses: ActionsDesk/github-actions-allow-list-as-code-action@v1.1.2
+        uses: ActionsDesk/github-actions-allow-list-as-code-action@v3.0.0
         with:
           token: ${{ secrets.ENTERPRISE_ADMIN_TOKEN }}
           enterprise: 'your-enterprise'
@@ -61,8 +61,8 @@ Example content for Allow List file containing `actions:` key and list with two 
 
 ```yml
 actions:
-  - actionsdesk/github-actions-allow-list-as-code-action@v1.1.2
-  - hashicorp/vault-action@v2.4.0
+  - actionsdesk/github-actions-allow-list-as-code-action@v3.0.0
+  - hashicorp/vault-action@v2.7.4
 ```
 
 ## License
