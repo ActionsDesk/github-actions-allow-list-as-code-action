@@ -17,6 +17,7 @@ inputs:
     required: false
   gh_api_url:
     description: 'GitHub Enterprise Server API URL'
+    default: ${{ github.api_url }}
     required: false
 
 runs:
