@@ -12,29 +12,53 @@ on:
     paths-ignore:
       - '*.md'
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
-
-    permissions: read-all
 
     env:
       CI: true
 
     strategy:
+      fail-fast: true
       matrix:
-        node-version: [16.x, 18.x]
+        node-version:
+          - 20
+        experimental: [false]
+        include:
+          - node-version: lts/*
+            experimental: true
+
+    continue-on-error: ${{ matrix.experimental }}
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.node-version }}-${{ matrix.experimental }}
+      cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9
+      - name: Checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
 
-      - uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+      - name: Check repository dependency graph
+        uses: actions/dependency-review-action@80f10bf419f34980065523f5efca7ebed17576aa
+        if: ${{ github.event_name == 'pull_request' }}
+
+      - name: Setup Node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - run: npm install --ignore-scripts --pure-lockfile
+      - name: NPM config
+        run: |
+          npm pkg delete scripts.prepare
+          npm install --ignore-scripts --pure-lockfile
 
-      - run: npm run build --if-present
+      - name: Build
+        run: npm run build --if-present
 
-      - run: npm run test --if-present
+      - name: Test
+        run: npm run test --if-present

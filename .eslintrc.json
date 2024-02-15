@@ -16,7 +16,10 @@
         "allow": [""]
       }
     ],
-    "no-console": "off",
-    "filenames/match-regex": "off"
+    "filenames/match-regex": "off",
+    "import/named": "off",
+    "import/namespace": "off",
+    "import/no-deprecated": "off",
+    "no-console": "off"
   }
 }
