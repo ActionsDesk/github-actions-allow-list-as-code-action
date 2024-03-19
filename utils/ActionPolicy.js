@@ -53,7 +53,6 @@ class ActionPolicy {
 
     this.octokit = new MyOctokit(
       getOctokitOptions(token, {
-        auth: token,
         baseUrl: ghApiUrl,
         request: {
           agent: new ProxyAgent(),
