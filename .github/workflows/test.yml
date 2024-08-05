@@ -47,7 +47,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
 
       - name: Setup Node.js v${{ matrix.node-version }}
-        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
