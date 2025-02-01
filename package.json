@@ -56,8 +56,8 @@
     "@github/prettier-config": "^0.0.6",
     "@vercel/ncc": "^0.38.3",
     "eslint": "^8.57.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-github": "^5.1.4",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-github": "^5.1.7",
     "husky": "^9.1.7",
     "proxy-agent": "^6.5.0",
     "rimraf": "^6.0.1"
