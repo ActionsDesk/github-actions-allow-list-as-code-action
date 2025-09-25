@@ -1,11 +1,12 @@
 import {readFileSync} from 'fs'
-import {Octokit} from '@octokit/core'
+import {GitHub, getOctokitOptions} from '@actions/github/lib/utils'
+// eslint-disable-next-line import/no-unresolved
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
-import {enterpriseServer38Admin} from '@octokit/plugin-enterprise-server'
+import {enterpriseServer312Admin} from '@octokit/plugin-enterprise-server'
 import {load} from 'js-yaml'
 import {ProxyAgent} from 'proxy-agent'
 
-const MyOctokit = Octokit.defaults({
+const MyOctokit = GitHub.defaults({
   headers: {
     'X-Github-Next-Global-ID': 1,
   },
@@ -13,7 +14,7 @@ const MyOctokit = Octokit.defaults({
     agent: new ProxyAgent(),
   },
   userAgent: 'github-actions-allow-list-as-code',
-}).plugin(enterpriseCloud, enterpriseServer38Admin)
+}).plugin(enterpriseCloud, enterpriseServer312Admin)
 
 class ActionPolicy {
   /**
@@ -51,13 +52,14 @@ class ActionPolicy {
       throw new Error('❗ `token` is required')
     }
 
-    this.octokit = new MyOctokit({
-      auth: token,
-      baseUrl: ghApiUrl,
-      request: {
-        agent: new ProxyAgent(),
-      },
-    })
+    this.octokit = new MyOctokit(
+      getOctokitOptions(token, {
+        baseUrl: ghApiUrl,
+        request: {
+          agent: new ProxyAgent(),
+        },
+      }),
+    )
 
     if (!enterprise && !organization) {
       throw new Error('❗ `enterprise` or `organization` is required')
