@@ -24,11 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.6.0
 
-      - name: Setup node
-        uses: actions/setup-node@v3.8.2
-        with:
-          node-version: 16.x
-
       - name: Deploy GitHub Actions allow list
         uses: ActionsDesk/github-actions-allow-list-as-code-action@v3.0.0
         with:
