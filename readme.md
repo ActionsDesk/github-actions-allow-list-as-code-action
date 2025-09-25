@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3.6.0
+        uses: actions/checkout@v5.0.0
 
       - name: Deploy GitHub Actions allow list
         uses: ActionsDesk/github-actions-allow-list-as-code-action@v3.0.0
@@ -51,12 +51,14 @@ jobs:
 
 ## Allow List file
 
-Example content for Allow List file containing `actions:` key and list with two allowed actions.
+Example content for Allow List file containing `actions:` key and list with two allowed actions with specific versions, one wildcard entry for an entire org, and one wildcard entry for all versions of a specific action:
 
 ```yml
 actions:
   - actionsdesk/github-actions-allow-list-as-code-action@v3.0.0
   - hashicorp/vault-action@v2.7.4
+  - aquasecurity/tfsec-sarif-action@*
+  - azure/*
 ```
 
 ## License
