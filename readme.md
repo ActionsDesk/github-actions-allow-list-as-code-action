@@ -41,7 +41,7 @@ jobs:
 | `organization`    | GitHub organization slug                                                                                         |                                 | `false`  |
 | `enterprise`      | GitHub Enterprise account slug                                                                                   |                                 | `false`  |
 | `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                                                  | `github-actions-allow-list.yml` | `false`  |
-| `gh_api_url`      | GitHub Enterprise Servier - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `${{ github.api_url }}`        | `false`  |
+| `gh_api_url`      | GitHub Enterprise Server - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `${{ github.api_url }}`        | `false`  |
 
 ℹ️ Notes for providing `enterprise` or `organization`:
 
