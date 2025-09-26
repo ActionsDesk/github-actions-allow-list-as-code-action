@@ -22,21 +22,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
-
-      - name: Setup node
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: 14.x
+        uses: actions/checkout@v5.0.0
 
       - name: Deploy GitHub Actions allow list
-        uses: ActionsDesk/github-actions-allow-list-as-code-action@v1.1.2
+        uses: ActionsDesk/github-actions-allow-list-as-code-action@v3.0.0
         with:
           token: ${{ secrets.ENTERPRISE_ADMIN_TOKEN }}
           enterprise: 'your-enterprise'
           # same as defined under `on.pull_requests.paths`
           allow_list_path: github-actions-allow-list.yml
-          # gh_api_url: 'https://github.example.com/api/v3' # Only required for GitHub Enterprise Server
 ```
 
 ### Action Inputs
@@ -47,7 +41,7 @@ jobs:
 | `organization`    | GitHub organization slug                                                                                         |                                 | `false`  |
 | `enterprise`      | GitHub Enterprise account slug                                                                                   |                                 | `false`  |
 | `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                                                  | `github-actions-allow-list.yml` | `false`  |
-| `gh_api_url`      | GitHub Enterprise Servier - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `https://api.github.com`        | `false`  |
+| `gh_api_url`      | GitHub Enterprise Server - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `${{ github.api_url }}`        | `false`  |
 
 ℹ️ Notes for providing `enterprise` or `organization`:
 
@@ -57,12 +51,14 @@ jobs:
 
 ## Allow List file
 
-Example content for Allow List file containing `actions:` key and list with two allowed actions.
+Example content for Allow List file containing `actions:` key and list with two allowed actions with specific versions, one wildcard entry for an entire org, and one wildcard entry for all versions of a specific action:
 
 ```yml
 actions:
-  - actionsdesk/github-actions-allow-list-as-code-action@v1.1.2
-  - hashicorp/vault-action@v2.4.0
+  - actionsdesk/github-actions-allow-list-as-code-action@v3.0.0
+  - hashicorp/vault-action@v2.7.4
+  - aquasecurity/tfsec-sarif-action@*
+  - azure/*
 ```
 
 ## License
