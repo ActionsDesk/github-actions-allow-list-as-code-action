@@ -63,7 +63,7 @@ actions:
 
 ## Local Development
 
-To run locally, set the follow environment variables, compile with `ncc`, and run with `node`:
+To run locally, set the following environment variables, compile with `ncc`, and run with `node`:
 
 ```sh
 export GITHUB_WORKSPACE=$(pwd)
