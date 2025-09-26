@@ -55,10 +55,10 @@ jobs:
 
 ### Example 2: Organization-specific Allow List Management
 
-This example demonstrates managing allow lists for a specific organization, useful when you want granular control per organization within an enterprise.
+This example demonstrates managing allow lists for multiple organizations using a matrix strategy that reads organization names from the allowlist filenames.
 
 ```yml
-name: Deploy Organization GitHub Actions Allow List
+name: Deploy Organization GitHub Actions Allow Lists
 
 on:
   push:
@@ -71,22 +71,70 @@ on:
     types: [opened, synchronize]
 
 jobs:
+  get-changed-orgs:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5.0.0
+        with:
+          fetch-depth: 2
+
+      - name: Get changed org allowlists
+        id: set-matrix
+        run: |
+          # Get changed org allowlist files
+          CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep 'allowlists/org-.*\.yml$' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "matrix={\"include\":[]}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Extract org names from filenames and create matrix
+          MATRIX_JSON="{"include":["
+          FIRST=true
+          for file in $CHANGED_FILES; do
+            # Extract org name from filename (e.g., allowlists/org-myorg.yml -> myorg)
+            ORG_NAME=$(basename "$file" .yml | sed 's/^org-//')
+            
+            if [ "$FIRST" = true ]; then
+              FIRST=false
+            else
+              MATRIX_JSON="$MATRIX_JSON,"
+            fi
+            
+            MATRIX_JSON="$MATRIX_JSON{"org":"$ORG_NAME","file":"$file"}"
+          done
+          MATRIX_JSON="$MATRIX_JSON]}"
+
+          echo "matrix=$MATRIX_JSON" >> $GITHUB_OUTPUT
+          echo "Generated matrix: $MATRIX_JSON"
+
   validate-allowlist:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    needs: get-changed-orgs
+    if: github.event_name == 'pull_request' && needs.get-changed-orgs.outputs.matrix != '{"include":[]}'
+    strategy:
+      matrix: ${{ fromJson(needs.get-changed-orgs.outputs.matrix) }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5.0.0
 
-      - name: Validate allow list format
+      - name: Validate allow list format for ${{ matrix.org }}
         run: |
-          # Add validation logic here
-          echo "🔍 Validating allow list format..."
+          echo "🔍 Validating allow list format for organization: ${{ matrix.org }}"
+          echo "📁 File: ${{ matrix.file }}"
+          # Add your YAML validation logic here
 
   deploy-org-allowlist:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    needs: get-changed-orgs
+    if: github.event_name == 'push' && needs.get-changed-orgs.outputs.matrix != '{"include":[]}'
+    strategy:
+      matrix: ${{ fromJson(needs.get-changed-orgs.outputs.matrix) }}
 
     environment: production
 
@@ -97,17 +145,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5.0.0
 
-      - name: Deploy GitHub Actions allow list to Organization
+      - name: Deploy allow list for ${{ matrix.org }}
         uses: ActionsDesk/github-actions-allow-list-as-code-action@v3.0.0
         with:
           token: ${{ secrets.ORG_ADMIN_TOKEN }}
-          organization: 'your-org-name'
-          allow_list_path: 'allowlists/org-production.yml'
+          organization: ${{ matrix.org }}
+          allow_list_path: ${{ matrix.file }}
 
       - name: Log deployment details
         run: |
-          echo "📋 Deployed allow list for organization: your-org-name"
-          echo "📁 Using file: allowlists/org-production.yml"
+          echo "✅ Deployed allow list for organization: ${{ matrix.org }}"
+          echo "📁 Using file: ${{ matrix.file }}"
 ```
 
 ### Example 3: GitHub Enterprise Server
@@ -223,22 +271,16 @@ The action requires a GitHub Personal Access Token with appropriate administrati
 - **Use separate tokens** for different environments when possible
 - **Monitor token usage** through GitHub's audit logs
 
-## Allow List File Examples
+## Allow List File
 
-The allow list file defines which GitHub Actions are permitted in your enterprise or organization. Below are comprehensive examples showing different patterns and use cases.
-
-### Basic Allow List Example
+The allow list file defines which GitHub Actions are permitted in your enterprise or organization. Create a YAML file with the following structure:
 
 ```yml
 # github-actions-allow-list.yml
 actions:
-  # Specific action versions (recommended for security)
-  - actions/checkout@v5.0.0
+  # Specific versions (recommended for security)
+  - actions/checkout@4f81bc57d3d6c1a48505cf8b1ad4555eb6ffeed5 # v4.2.2
   - actions/setup-node@v4.0.2
-  - actions/cache@v4.0.1
-
-  # Allow specific action with version pinning
-  - hashicorp/vault-action@v2.7.4
 
   # Allow all versions of a specific action (use with caution)
   - aquasecurity/tfsec-sarif-action@*
@@ -247,113 +289,10 @@ actions:
   - azure/*
 ```
 
-### Comprehensive Enterprise Allow List Example
+For more information about action versioning and security best practices, see:
 
-```yml
-# enterprise-github-actions-allow-list.yml
-actions:
-  # === CORE GITHUB ACTIONS ===
-  # Essential GitHub-maintained actions for CI/CD workflows
-  - actions/checkout@v5.0.0 # Repository checkout
-  - actions/setup-node@v4.0.2 # Node.js environment setup
-  - actions/setup-python@v5.0.0 # Python environment setup
-  - actions/setup-java@v4.0.0 # Java environment setup
-  - actions/setup-dotnet@v4.0.0 # .NET environment setup
-  - actions/cache@v4.0.1 # Dependency caching
-  - actions/upload-artifact@v4.3.1 # Build artifact upload
-  - actions/download-artifact@v4.1.4 # Build artifact download
-
-  # === SECURITY AND COMPLIANCE ===
-  # Security scanning and compliance tools
-  - github/codeql-action@v3.24.6 # CodeQL security analysis
-  - anchore/sbom-action@v0.15.9 # Software Bill of Materials
-  - aquasecurity/tfsec-sarif-action@* # Terraform security scanning
-  - securecodewarrior/github-action-add-sarif@v1 # SARIF processing
-
-  # === DEPLOYMENT AND INFRASTRUCTURE ===
-  # Cloud deployment and infrastructure management
-  - azure/login@v2.0.0 # Azure authentication
-  - azure/cli@v2.0.0 # Azure CLI operations
-  - aws-actions/configure-aws-credentials@v4.0.2 # AWS authentication
-  - hashicorp/vault-action@v2.7.4 # HashiCorp Vault integration
-  - terraform-docs/gh-actions@v1.0.0 # Terraform documentation
-
-  # === TRUSTED ORGANIZATIONS ===
-  # Allow all actions from these trusted organizations
-  - microsoft/* # Microsoft-maintained actions
-  - docker/* # Docker-maintained actions
-
-  # === THIRD-PARTY TOOLS ===
-  # Specific third-party tools with version constraints
-  - codecov/codecov-action@v4.1.0 # Code coverage reporting
-  - sonarqube-quality-gate-action@v1.3.0 # SonarQube integration
-  - slack-action@v1.0.0 # Slack notifications
-```
-
-### Organization-Specific Allow List Example
-
-```yml
-# org-development-allowlist.yml
-# Tailored for development teams with additional flexibility
-actions:
-  # === DEVELOPMENT ESSENTIALS ===
-  - actions/checkout@v5.0.0
-  - actions/setup-node@v4.0.2
-  - actions/setup-python@v5.0.0
-  - actions/cache@v4.0.1
-
-  # === TESTING FRAMEWORKS ===
-  - cypress-io/github-action@v6.6.1 # Cypress E2E testing
-  - browser-actions/setup-chrome@v1.5.0 # Chrome for testing
-  - pnpm/action-setup@v3.0.0 # PNPM package manager
-
-  # === CODE QUALITY ===
-  - github/super-linter@v5.7.2 # Multi-language linting
-  - wearerequired/lint-action@v2.3.0 # Custom linting workflows
-
-  # === DEVELOPMENT TOOLS ===
-  # Allow flexibility for development environment
-  - devcontainers/* # Development containers
-  - peaceiris/* # GitHub Pages and documentation tools
-```
-
-### Security-First Restrictive Example
-
-```yml
-# security-first-allowlist.yml
-# Highly restrictive allow list for security-sensitive environments
-actions:
-  # Only essential GitHub-maintained actions with specific versions
-  - actions/checkout@v5.0.0
-  - actions/cache@v4.0.1
-  - github/codeql-action@v3.24.6
-
-  # Pre-approved security tools only
-  - anchore/sbom-action@v0.15.9
-  - aquasecurity/tfsec-sarif-action@v1.0.6 # Note: specific version, not wildcard
-
-
-  # No wildcard organizations - everything must be explicitly approved
-  # No third-party actions without thorough security review
-```
-
-### Pattern Explanations
-
-| Pattern Type              | Example                   | Description                                        | Security Recommendation                                  |
-| ------------------------- | ------------------------- | -------------------------------------------------- | -------------------------------------------------------- |
-| **Specific Version**      | `actions/checkout@v5.0.0` | Pins to exact version for consistency and security | ✅ **Recommended** - Most secure                         |
-| **Version Wildcard**      | `actions/checkout@*`      | Allows any version of the action                   | ⚠️ **Use with caution** - May introduce breaking changes |
-| **Organization Wildcard** | `microsoft/*`             | Allows all actions from the organization           | ⚠️ **Use with trusted orgs only**                        |
-| **Full Wildcard**         | `*`                       | Allows any action (not supported by this tool)     | ❌ **Not recommended** - Security risk                   |
-
-### Best Practices for Allow Lists
-
-1. **Pin to specific versions** when possible for reproducible builds
-2. **Use organization wildcards sparingly** and only for highly trusted publishers
-3. **Regularly audit and update** your allow list to include security patches
-4. **Test changes** in a non-production environment first
-5. **Document the purpose** of each allowed action with comments
-6. **Consider separate allow lists** for different environments (dev/staging/prod)
+- [Using immutable releases and tags to manage your actions releases](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/using-immutable-releases-and-tags-to-manage-your-actions-releases)
+- [Enforcing policies for GitHub Actions in your enterprise](https://docs.github.com/en/enterprise-cloud@latest/admin/enforcing-policies/enforcing-policies-for-your-enterprise/enforcing-policies-for-github-actions-in-your-enterprise#policies)
 
 ## License
 
