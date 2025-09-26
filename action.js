@@ -17,6 +17,10 @@ import ActionPolicy from './utils/ActionPolicy'
     const allowList = getInput('allow_list_path')
     const workspace = process.env.GITHUB_WORKSPACE
 
+    if (!workspace) {
+      throw new Error('❗ GITHUB_WORKSPACE environment variable is not set')
+    }
+
     const allowListPath = join(workspace, allowList)
     const {dir} = parse(allowListPath)
 
