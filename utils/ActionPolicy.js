@@ -1,7 +1,7 @@
 import {readFileSync} from 'fs'
 import {GitHub, getOctokitOptions} from '@actions/github/lib/utils'
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
-import {enterpriseServer312Admin} from '@octokit/plugin-enterprise-server'
+import {enterpriseServer315Admin} from '@octokit/plugin-enterprise-server'
 import {load} from 'js-yaml'
 import {ProxyAgent} from 'proxy-agent'
 
@@ -9,7 +9,7 @@ const MyOctokit = GitHub.defaults({
   headers: {'X-Github-Next-Global-ID': 1},
   request: {agent: new ProxyAgent()},
   userAgent: 'github-actions-allow-list-as-code',
-}).plugin(enterpriseCloud, enterpriseServer312Admin)
+}).plugin(enterpriseCloud, enterpriseServer315Admin)
 
 class ActionPolicy {
   /**
