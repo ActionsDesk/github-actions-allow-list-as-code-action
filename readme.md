@@ -93,7 +93,7 @@ jobs:
           fi
 
           # Extract org names from filenames and create matrix
-          MATRIX_JSON="{"include":["
+          MATRIX_JSON="{\"include\":["
           FIRST=true
           for file in $CHANGED_FILES; do
             # Extract org name from filename (e.g., allowlists/org-myorg.yml -> myorg)
@@ -105,7 +105,7 @@ jobs:
               MATRIX_JSON="$MATRIX_JSON,"
             fi
             
-            MATRIX_JSON="$MATRIX_JSON{"org":"$ORG_NAME","file":"$file"}"
+            MATRIX_JSON="$MATRIX_JSON{\"org\":\"$ORG_NAME\",\"file\":\"$file\"}"
           done
           MATRIX_JSON="$MATRIX_JSON]}"
 
