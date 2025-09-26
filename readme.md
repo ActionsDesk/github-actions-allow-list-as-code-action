@@ -167,23 +167,48 @@ jobs:
 
 ### Creating the Required Personal Access Token (PAT)
 
-The action requires a GitHub Personal Access Token with appropriate administrative permissions:
+The action requires a GitHub Personal Access Token with appropriate administrative permissions. You can use either Classic or Fine-grained tokens:
 
-#### For Enterprise Administration:
+#### Option 1: Classic Personal Access Token (Recommended)
 
-1. Go to **Settings** > **Developer settings** > **Personal access tokens** > **Fine-grained tokens**
-2. Create a new token with the following scopes:
+##### For Enterprise Administration:
+
+1. Go to **Settings** > **Developer settings** > **Personal access tokens** > **Tokens (classic)**
+2. Click **Generate new token** > **Generate new token (classic)**
+3. Select the following scopes:
    - `admin:enterprise` - Required for enterprise-level allow list management
    - `read:org` - Required to read organization information
-3. Set the token expiration according to your security policies
-4. Store the token as `ENTERPRISE_ADMIN_TOKEN` in your repository secrets
+4. Set the token expiration according to your security policies
+5. Store the token as `ENTERPRISE_ADMIN_TOKEN` in your repository secrets
 
-#### For Organization Administration:
+##### For Organization Administration:
 
-1. Create a PAT with the following scopes:
+1. Create a classic PAT with the following scopes:
    - `admin:org` - Required for organization-level allow list management
    - `read:org` - Required to read organization information
 2. Store the token as `ORG_ADMIN_TOKEN` in your repository secrets
+
+#### Option 2: Fine-grained Personal Access Token
+
+##### For Enterprise Administration:
+
+1. Go to **Settings** > **Developer settings** > **Personal access tokens** > **Fine-grained tokens**
+2. Click **Generate new token**
+3. Select your enterprise as the resource owner
+4. Configure the following permissions:
+   - **Organization permissions**: `Administration` (read and write)
+   - **Repository permissions**: `Actions` (read), `Contents` (read)
+5. Store the token as `ENTERPRISE_ADMIN_TOKEN` in your repository secrets
+
+##### For Organization Administration:
+
+1. Create a fine-grained PAT with your organization as the resource owner
+2. Configure the following permissions:
+   - **Organization permissions**: `Administration` (read and write)
+   - **Repository permissions**: `Actions` (read), `Contents` (read)
+3. Store the token as `ORG_ADMIN_TOKEN` in your repository secrets
+
+> **Note:** Fine-grained tokens provide more granular control but may have limitations with enterprise-level operations. Classic tokens are recommended for enterprise administration.
 
 #### For GitHub Enterprise Server:
 
