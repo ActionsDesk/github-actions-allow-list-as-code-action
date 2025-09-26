@@ -1,18 +1,13 @@
 import {readFileSync} from 'fs'
 import {GitHub, getOctokitOptions} from '@actions/github/lib/utils'
-// eslint-disable-next-line import/no-unresolved
 import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
 import {enterpriseServer312Admin} from '@octokit/plugin-enterprise-server'
 import {load} from 'js-yaml'
 import {ProxyAgent} from 'proxy-agent'
 
 const MyOctokit = GitHub.defaults({
-  headers: {
-    'X-Github-Next-Global-ID': 1,
-  },
-  request: {
-    agent: new ProxyAgent(),
-  },
+  headers: {'X-Github-Next-Global-ID': 1},
+  request: {agent: new ProxyAgent()},
   userAgent: 'github-actions-allow-list-as-code',
 }).plugin(enterpriseCloud, enterpriseServer312Admin)
 
@@ -52,14 +47,7 @@ class ActionPolicy {
       throw new Error('❗ `token` is required')
     }
 
-    this.octokit = new MyOctokit(
-      getOctokitOptions(token, {
-        baseUrl: ghApiUrl,
-        request: {
-          agent: new ProxyAgent(),
-        },
-      }),
-    )
+    this.octokit = new MyOctokit(getOctokitOptions(token, {baseUrl: ghApiUrl, request: {agent: new ProxyAgent()}}))
 
     if (!enterprise && !organization) {
       throw new Error('❗ `enterprise` or `organization` is required')
@@ -90,9 +78,7 @@ class ActionPolicy {
       // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-github-actions-permissions-for-an-enterprise
       const {
         data: {allowed_actions, enabled_organizations},
-      } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {
-        enterprise,
-      })
+      } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {enterprise})
 
       if (enabled_organizations === 'none') {
         throw new Error(`❗ GitHub Actions disabled`)
@@ -170,9 +156,7 @@ class ActionPolicy {
       // https://docs.github.com/en/rest/reference/actions#get-github-actions-permissions-for-an-organization
       const {
         data: {allowed_actions},
-      } = await octokit.request('GET /orgs/{org}/actions/permissions', {
-        org: organization,
-      })
+      } = await octokit.request('GET /orgs/{org}/actions/permissions', {org: organization})
 
       // 'allowed_actions' can have the values
       //    - 'all'
