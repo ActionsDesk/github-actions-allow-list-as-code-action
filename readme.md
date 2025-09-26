@@ -61,6 +61,19 @@ actions:
   - azure/*
 ```
 
+## Local Development
+
+To run locally, set the following environment variables, compile with `ncc`, and run with `node`:
+
+```sh
+export GITHUB_WORKSPACE=$(pwd)
+export INPUT_ALLOW_LIST_PATH=allowlist.yml
+export INPUT_ORGANIZATION=my-org # use INPUT_ENTERPRISE for enterprise
+export INPUT_TOKEN=ghp_abcdefg
+npm run build
+node dist/index.js
+```
+
 ## License
 
 - [MIT License](./license)
