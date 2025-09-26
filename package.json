@@ -42,7 +42,7 @@
     "build": "npx @vercel/ncc build action.js -o dist -q -m -s --license licenses.txt",
     "format": "npx prettier --config-precedence prefer-file --write . && eslint . --fix",
     "prebuild": "rimraf dist",
-    "prepare": "husky install ./.github/husky",
+    "prepare": "husky",
     "pretest": "npx eslint-config-prettier .eslintrc.json",
     "test": "eslint ."
   },
@@ -61,14 +61,24 @@
     "eslint-plugin-markdown": "^5.1.0",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
+    "lint-staged": "^16.2.1",
     "proxy-agent": "^6.5.0",
     "rimraf": "^6.0.1"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "./.github/husky/pre-commit",
-      "pre-push": "./.github/husky/pre-push"
+      "pre-commit": ".husky/pre-commit",
+      "pre-push": ".husky/pre-push"
     }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "npm run format",
+      "npm run test"
+    ],
+    "*.{json,md}": [
+      "npm run format"
+    ]
   },
   "prettier": "@github/prettier-config"
 }
