@@ -4,6 +4,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
+    groups:
+      actions:
+        patterns:
+          - '*'
     commit-message:
       prefix: '🆙 action'
     labels:
@@ -13,6 +17,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'monthly'
+    groups:
+      npm:
+        patterns:
+          - '*'
     commit-message:
       prefix: '🆙 npm'
       include: 'scope'

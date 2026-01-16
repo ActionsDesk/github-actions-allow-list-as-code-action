@@ -1,0 +1,248 @@
+import {readFileSync} from 'fs'
+import {GitHub, getOctokitOptions} from '@actions/github/lib/utils'
+import {enterpriseCloud} from '@octokit/plugin-enterprise-cloud'
+import {enterpriseServer315Admin} from '@octokit/plugin-enterprise-server'
+import {load} from 'js-yaml'
+import {ProxyAgent} from 'proxy-agent'
+
+const MyOctokit = GitHub.defaults({
+  headers: {'X-Github-Next-Global-ID': 1},
+  request: {agent: new ProxyAgent()},
+  userAgent: 'github-actions-allow-list-as-code',
+}).plugin(enterpriseCloud, enterpriseServer315Admin)
+
+class ActionPolicy {
+  /**
+   * @typedef {object} Organization
+   * @property {string} login
+   * @readonly
+   */
+
+  /**
+   * @typedef {object} Policy
+   * @property {string|string[]} organizations
+   * @property {string} actions
+   * @property {Selected} selected
+   * @readonly
+   */
+
+  /**
+   * @typedef {object} Selected
+   * @property {boolean} selected.github_owned_allowed
+   * @property {string[]} selected.patterns_allowed
+   * @property {boolean} selected.verified_allowed
+   * @readonly
+   */
+
+  /**
+   * @param {object} options
+   * @param {string} options.token GitHub Personal Access Token
+   * @param {string} options.enterprise GitHub Enterprise Cloud slug
+   * @param {string} options.organization GitHub organization slug
+   * @param {string} options.allowListPath Path to the GitHub Actions allow list YML within the repository
+   * @param {string} options.ghApiUrl GitHub API URL - defaults to https://api.github.com
+   */
+  constructor({token, enterprise, organization, allowListPath, ghApiUrl}) {
+    if (!token) {
+      throw new Error('❗ `token` is required')
+    }
+
+    this.octokit = new MyOctokit(getOctokitOptions(token, {baseUrl: ghApiUrl, request: {agent: new ProxyAgent()}}))
+
+    if (!enterprise && !organization) {
+      throw new Error('❗ `enterprise` or `organization` is required')
+    }
+
+    this.enterprise = enterprise
+    this.organization = organization
+
+    if (!allowListPath) {
+      throw new Error('❗ `allowListPath` is required')
+    }
+
+    this.allowListPath = allowListPath
+    this.allowList = undefined
+
+    /** @type Policy */
+    this.policy = undefined
+  }
+
+  /**
+   * @readonly
+   * @throws
+   */
+  async loadCurrentEnterpriseActionsPolicy() {
+    const {enterprise, octokit} = this
+
+    try {
+      // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-github-actions-permissions-for-an-enterprise
+      const {
+        data: {allowed_actions, enabled_organizations},
+      } = await octokit.request('GET /enterprises/{enterprise}/actions/permissions', {enterprise})
+
+      if (enabled_organizations === 'none') {
+        throw new Error(`❗ GitHub Actions disabled`)
+      }
+
+      // 'allowed_actions' can have the values
+      //    - 'all'
+      //    - 'local_only'
+      //    - 'selected'
+      const actions = allowed_actions
+
+      this.policy = {actions}
+
+      // if 'selected' is the permission for GitHub Actions, get additional details
+      if (actions === 'selected') {
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#get-allowed-actions-and-reusable-workflows-for-an-enterprise
+        const {data} = await octokit.request('GET /enterprises/{enterprise}/actions/permissions/selected-actions', {
+          enterprise,
+        })
+
+        this.policy.selected = data
+      } else {
+        throw new Error(
+          '❗ GitHub Actions allow list automation is only possible with "Allow select actions" selected!',
+        )
+      }
+    } catch (error) {
+      if (error.status === 404) throw new Error(`${enterprise} is not a GitHub Enterprise Cloud account`)
+      else throw error
+    }
+  }
+
+  /**
+   * @readonly
+   * @throws
+   * @returns {boolean}
+   */
+  async updateEnterpriseActionsAllowList() {
+    const {
+      enterprise,
+      octokit,
+      policy: {actions, selected},
+      allowList: patterns_allowed,
+    } = this
+
+    if (actions === 'selected' && selected.patterns_allowed) {
+      try {
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/actions/permissions#set-allowed-actions-and-reusable-workflows-for-an-enterprise
+        const {status} = await octokit.request('PUT /enterprises/{enterprise}/actions/permissions/selected-actions', {
+          enterprise,
+          patterns_allowed,
+        })
+
+        if (status !== 204) {
+          throw new Error(`❗ Failed to update GitHub Actions allow list!`)
+        }
+      } catch (error) {
+        throw new Error(`❗ Failed to update GitHub Actions allow list!`)
+      }
+    }
+
+    selected.patterns_allowed = patterns_allowed
+
+    return true
+  }
+
+  /**
+   * @readonly
+   * @throws
+   */
+  async loadCurrentOrganizationActionsPolicy() {
+    const {organization, octokit} = this
+
+    try {
+      // https://docs.github.com/en/rest/reference/actions#get-github-actions-permissions-for-an-organization
+      const {
+        data: {allowed_actions},
+      } = await octokit.request('GET /orgs/{org}/actions/permissions', {org: organization})
+
+      // 'allowed_actions' can have the values
+      //    - 'all'
+      //    - 'local_only'
+      //    - 'selected'
+      const actions = allowed_actions
+
+      if (actions === undefined) {
+        throw new Error(`❗ GitHub Actions disabled`)
+      }
+
+      this.policy = {organization, actions}
+
+      // if 'selected' is the permission for GitHub Actions, get additional details
+      if (actions === 'selected') {
+        // https://docs.github.com/en/rest/reference/enterprise-admin#get-allowed-actions-for-an-enterprise
+        const {data} = await octokit.request('GET /orgs/{org}/actions/permissions/selected-actions', {
+          org: organization,
+        })
+
+        this.policy.selected = data
+      } else {
+        throw new Error(
+          '❗ GitHub Actions allow list automation is only possible with "Allow select actions" selected!',
+        )
+      }
+    } catch (error) {
+      if (error.status === 404) throw new Error(`${organization} is not a GitHub organization account`)
+      else throw error
+    }
+  }
+
+  /**
+   * @readonly
+   * @throws
+   * @returns {boolean}
+   */
+  async updateOrganizationActionsAllowList() {
+    const {
+      organization,
+      octokit,
+      policy: {actions, selected},
+      allowList: patterns_allowed,
+    } = this
+
+    if (actions === 'selected' && selected.patterns_allowed) {
+      try {
+        const {status} = await octokit.request('PUT /orgs/{org}/actions/permissions/selected-actions', {
+          org: organization,
+          patterns_allowed,
+        })
+
+        if (status !== 204) {
+          throw new Error(`❗ Failed to update GitHub Actions allow list!`)
+        }
+      } catch (error) {
+        throw new Error(error.errors || `❗ Failed to update GitHub Actions allow list!`)
+      }
+    }
+
+    selected.patterns_allowed = patterns_allowed
+
+    return true
+  }
+
+  /**
+   * @readonly
+   * @returns {Policy}
+   */
+  getPolicy() {
+    return this.policy
+  }
+
+  /**
+   * @readonly
+   * @returns {string[]}
+   */
+  async loadAllowListYAML() {
+    const content = readFileSync(this.allowListPath, 'utf8')
+    const {actions: allowList} = load(content, {json: true})
+
+    // unique values only
+    this.allowList = [...new Set(allowList)]
+
+    return allowList
+  }
+}
+
+export default ActionPolicy
