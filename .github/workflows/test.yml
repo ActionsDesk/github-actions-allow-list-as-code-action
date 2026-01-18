@@ -55,7 +55,7 @@ jobs:
       - name: NPM config
         run: |
           npm pkg delete scripts.prepare
-          npm install --ignore-scripts --pure-lockfile
+          npm install --ignore-scripts
 
       - name: Build
         run: npm run build --if-present

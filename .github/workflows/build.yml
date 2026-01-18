@@ -19,8 +19,13 @@ jobs:
         # Disabling shallow clones is recommended for improving the relevancy of reporting
         fetch-depth: 0
     
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
     - name: Install dependencies
-      run: npm ci
+      run: npm install
     
     - name: Run ESLint
       run: npm run test -- --format json --output-file eslint-report.json
