@@ -1,6 +1,15 @@
 name: SonarQube Scan
 
 on:
+  # Trigger analysis when pushing to your main branches, and when creating a pull request.
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - 'releases/**'
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_call:
     # see https://github.com/SonarSource/sonarqube-scan-action#environment-variables
     secrets:
@@ -67,8 +76,8 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          SONAR_TOKEN: ${{ secrets.sonar_token }}
-          SONAR_HOST_URL: ${{ secrets.sonar_host_url }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.sonar_token }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || secrets.sonar_host_url }}
           RUN_NUMBER: ${{ github.run_number }}
 
       - name: Set SonarQube reference branch and version
