@@ -1,38 +1,216 @@
-on:
-  # Trigger analysis when pushing to your main branches, and when creating a pull request.
-  push:
-    branches:
-      - main
-      - master
-      - develop
-      - 'releases/**'
-  pull_request:
-    types: [opened, synchronize, reopened]
+name: SonarQube Scan
 
-name: SonarQube Analysis
+on:
+  workflow_call:
+    # see https://github.com/SonarSource/sonarqube-scan-action#environment-variables
+    secrets:
+      sonar_token:
+        description: "This is the token used to authenticate access to SonarQube"
+        required: true
+      sonar_host_url:
+        description: "This tells the scanner where SonarQube is hosted"
+        required: true
+    inputs:
+      enable_debug:
+        description: Enable additional debug to troubleshoot action issues
+        required: false
+        type: boolean
+        default: false
+      unittest-coverage-report-name:
+        description: Name of unit test coverage report artifact uploaded in unit test job
+        type: string
+        default: ''
+        required: false
+      unittest-coverage-report-path:
+        description: Path of unit test coverage report artifact uploaded in unit test job
+        default: ''
+        type: string
+        required: false
+      protected-branch:
+        description: Name of the branch you would like to generate reports relative to when raising PRs
+        default: ''
+        type: string
+        required: false
+      servicenow_enabled:
+        description: "Whether to use the servicenow integration or not"
+        type: boolean
+        default: false
+        required: false
+      servicenow_job_name:
+        description: "Job Name"
+        type: string
+        default: "scan"
+        required: false
+
 jobs:
-  sonarqube:
+  scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-    - uses: actions/checkout@v4
-      with:
-        # Disabling shallow clones is recommended for improving the relevancy of reporting
-        fetch-depth: 0
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-    
-    - name: Install dependencies
-      run: npm install
-    
-    - name: Run ESLint
-      run: npm run test -- --format json --output-file eslint-report.json
-      continue-on-error: true
-    
-    - name: SonarQube Scan
-      uses: SonarSource/sonarqube-scan-action@v5.0.0
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download Coverage Report
+        if: inputs.unittest-coverage-report-name != ''
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ inputs.unittest-coverage-report-name }}
+          path: ${{ inputs.unittest-coverage-report-path }}
+
+      # https://github.com/SonarSource/sonarqube-scan-action
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@master
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SONAR_TOKEN: ${{ secrets.sonar_token }}
+          SONAR_HOST_URL: ${{ secrets.sonar_host_url }}
+          RUN_NUMBER: ${{ github.run_number }}
+
+      - name: Set SonarQube reference branch and version
+        shell: pwsh
+        run: |
+          $repoName = "${{ github.event.repository.name }}"
+          $baseUrl = "${{ secrets.sonar_host_url }}/api"
+
+          $newCodeEndpointGet = "${baseUrl}/new_code_periods/list"
+          $newCodeParamsGet = "project=com.shell.$repoName"
+
+          $response = Invoke-RestMethod -Method GET -Uri "$($newCodeEndpointGet)?$($newCodeParamsGet)" `
+          -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+          -ContentType "application/json" `
+          -SkipHttpErrorCheck
+
+          if ($response -match "DOCTYPE html") {
+            $baseUrl = "${{ secrets.sonar_host_url }}api"
+            $newCodeEndpointGet = "${baseUrl}/new_code_periods/list"
+
+            $response = Invoke-RestMethod -Method GET -Uri "$($newCodeEndpointGet)?$($newCodeParamsGet)" `
+            -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+            -ContentType "application/json" `
+            -SkipHttpErrorCheck
+          }
+
+          try {
+            if (($response -eq "") -or ($response.errors[0].msg -eq "Insufficient privileges")) {
+              Write-Host "Project Token in use so skipping New Code Periods."
+              exit
+            }
+          } catch {
+            if ($_ -match "Cannot index into a null array") {
+              }
+          }
+
+          try {
+            if ($response.newCodePeriods[0].inherited) {
+              $branch = "${{ inputs.protected-branch || github.event.repository.default_branch }}"
+              $newCodeEndpointSet = "${baseUrl}/new_code_periods/set"
+              $newCodeParamsSetBranch = "project=com.shell.$repoName&type=REFERENCE_BRANCH&value=$branch"
+
+              Invoke-RestMethod -Method POST -Uri "$($newCodeEndpointSet)?$($newCodeParamsSetBranch)" `
+                -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+                -ContentType "application/json"
+
+              $newCodeParamsSetVersion = "project=com.shell.$repoName&type=PREVIOUS_VERSION&branch=$branch"
+
+              Invoke-RestMethod -Method POST -Uri "$($newCodeEndpointSet)?$($newCodeParamsSetVersion)" `
+                -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+                -ContentType "application/json"
+            } else {
+              Write-Host "New Code Periods already set."
+              exit
+            }
+          } catch {
+            Write-Host "Unhandled error encountered: $_"
+            exit
+          }
+
+      - name: Configure SonarQube DevOps integration
+        shell: pwsh
+        run: |
+          $repoName = "${{ github.event.repository.name }}"
+          $org = "${{ github.repository_owner }}"
+          $baseUrl = "${{ secrets.sonar_host_url }}/api"
+
+          $devopsIntegrationEndpointGet = "${baseUrl}/alm_settings/get_binding"
+          $devoopsIntegrationParamsGet = "project=com.shell.$repoName"
+
+          $response = Invoke-RestMethod -Method GET -Uri "$($devopsIntegrationEndpointGet)?$($devoopsIntegrationParamsGet)" `
+          -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+          -ContentType "application/json" `
+          -SkipHttpErrorCheck
+
+          if ($response -match "DOCTYPE html") {
+            $baseUrl = "${{ secrets.sonar_host_url }}api"
+            $devopsIntegrationEndpointGet = "${baseUrl}/alm_settings/get_binding"
+
+            $response = Invoke-RestMethod -Method GET -Uri  "$($devopsIntegrationEndpointGet)?$($devoopsIntegrationParamsGet)" `
+              -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+              -ContentType "application/json" `
+              -SkipHttpErrorCheck
+          }
+
+          try {
+            if (($response -eq "") -or ($response.errors[0].msg -eq "Insufficient privileges")) {
+              Write-Host "Project Token in use so skipping DevOps Integration."
+              exit
+            } 
+            if ($response.errors[0].msg.EndsWith("is not bound to any DevOps Platform")) {
+              $devOpsIntegrationEndpointSet = "${baseUrl}/alm_settings/set_github_binding"
+              $devOpsIntegrationParamsSet = "project=com.shell.$repoName&almSetting=GitHub-App-Integration&monorepo=false&repository=$org/$repoName"
+
+              Invoke-RestMethod -Method POST -Uri "$($devOpsIntegrationEndpointSet)?$($devOpsIntegrationParamsSet)" `
+              -Headers @{ "Authorization" = "Bearer ${{ secrets.sonar_token }}" } `
+              -ContentType "application/json"
+            }
+          } catch {
+            if ($_ -match "Cannot index into a null array") {
+              Write-Host "DevOps integration already set."
+              exit
+            }
+            else {
+              Write-Host "Unhandled error encountered: $_"
+              exit
+            }
+          }
+
+      - name: SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@master
+        # Force to fail step after specific time
+        timeout-minutes: 60
+        env:
+          SONAR_TOKEN: ${{ secrets.sonar_token }}
+          SONAR_HOST_URL: ${{ secrets.sonar_host_url }}
+
+      - name: Debug Report
+        if: ${{ inputs.enable_debug }}
+        shell: bash
+        run: |
+          ls -al
+          ls -al .scannerwork
+          echo "---report----"
+          cat .scannerwork/report-task.txt
+          echo "---project properties----"
+          cat ./sonar-project.properties
+
+      - name: Upload SonarQube Scan Report
+        uses: actions/upload-artifact@master
+        with:
+          name: sonar-scan-log
+          path: .scannerwork/report-task.txt
+
+      - name: ServiceNow Register Artifact
+        if: inputs.servicenow_enabled && always()
+        uses: ServiceNow/servicenow-devops-register-artifact@v3.1.0
+        with:
+          devops-integration-user-name: ${{ secrets.SN_DEVOPS_USER }}
+          devops-integration-user-password: ${{ secrets.SN_DEVOPS_PWD }}
+          instance-url: ${{ secrets.SN_DEVOPS_URL }}
+          tool-id: ${{ secrets.SN_DEVOPS_TOOL_ID }}
+          context-github: ${{ toJSON(github) }}
+          job-name: "${{ inputs.servicenow_job_name }}"
+          artifacts: '[{"name": "sonar-scan-log","version": "1.${{ github.run_number }}","semanticVersion": "1.${{ github.run_number }}.0","repositoryName": "${{ github.repository }}"}]'
