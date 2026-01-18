@@ -1,7 +1,7 @@
 {
   "name": "github-actions-allow-list-as-code-action",
-  "version": "1.1.2",
-  "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts",
+  "version": "3.2.1",
+  "description": "Automate GitHub Actions allow list for GitHub Enterprise Cloud and Server accounts",
   "keywords": [
     "github-enterprise-cloud",
     "github-actions",
@@ -18,31 +18,69 @@
       "name": "Stefan Stölzle",
       "email": "stoe@github.com",
       "url": "https://github.com/stoe"
+    },
+    {
+      "name": "Stefan Petrushevski",
+      "email": "theztefan@github.com",
+      "url": "https://github.com/theztefan"
+    },
+    {
+      "name": "Damien Hardy",
+      "email": "digimangos@github.com",
+      "url": "https://github.com/digimangos"
     }
   ],
   "license": "MIT",
   "repository": "github:ActionsDesk/github-actions-allow-list-as-code-action",
   "engines": {
-    "node": ">=14",
-    "npm": ">=7"
+    "node": ">=20",
+    "npm": ">=10"
   },
-  "main": "index.mjs",
+  "main": "action.js",
   "scripts": {
-    "build": "npx @vercel/ncc build index.mjs --out dist --license licenses.txt --quiet --minify",
+    "build": "npx @vercel/ncc build action.js -o dist -q -m -s --license licenses.txt",
+    "format": "npx prettier --config-precedence prefer-file --write . && eslint . --fix",
+    "prebuild": "rimraf dist",
+    "prepare": "husky",
     "pretest": "npx eslint-config-prettier .eslintrc.json",
     "test": "eslint ."
   },
   "dependencies": {
-    "@actions/core": "1.10.1",
-    "@octokit/core": "^3.5.1",
-    "@octokit/plugin-enterprise-cloud": "^6.0.0",
-    "js-yaml": "^4.1.0"
+    "@actions/core": "^2.0.1",
+    "@actions/github": "^6.0.1",
+    "@octokit/plugin-enterprise-cloud": "^15.2.1",
+    "@octokit/plugin-enterprise-server": "^20.0.0",
+    "js-yaml": "^4.1.1"
+  },
+  "overrides": {
+    "undici": "^6.23.0"
   },
   "devDependencies": {
-    "@github/prettier-config": "^0.0.4",
-    "eslint": "^7.32.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-github": "^4.2.0"
+    "@github/prettier-config": "^0.0.6",
+    "@vercel/ncc": "^0.38.4",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-markdown": "^5.1.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "proxy-agent": "^6.5.0",
+    "rimraf": "^6.1.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": ".husky/pre-commit",
+      "pre-push": ".husky/pre-push"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "npm run format",
+      "npm run test"
+    ],
+    "*.{json,md}": [
+      "npm run format"
+    ]
   },
   "prettier": "@github/prettier-config"
 }

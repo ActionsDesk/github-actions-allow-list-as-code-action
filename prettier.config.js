@@ -1,2 +1,10 @@
-// eslint-disable-next-line filenames/match-regex, import/extensions, import/no-commonjs
-module.exports = require('eslint-plugin-github/prettier.config')
+import * as prettierGitHubConfig from '@github/prettier-config'
+
+export default {
+  ...prettierGitHubConfig.default,
+  // Add your overrides here
+  semi: false,
+  singleQuote: true,
+  tabWidth: 2,
+  trailingComma: 'all',
+}

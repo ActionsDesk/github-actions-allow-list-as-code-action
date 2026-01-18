@@ -1,8 +1,8 @@
 # github-actions-allow-list-as-code-action
 
-> Automate GitHub Actions allow list for GitHub Enterprise Cloud accounts
+> Automate GitHub Actions allow list for GitHub Enterprise accounts
 
-[![test](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/test.yml/badge.svg)](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/test.yml) [![codeql](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/codeql.yml/badge.svg)](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/codeql.yml) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+[![test](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/test.yml/badge.svg)](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/test.yml) [![CodeQL](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/ActionsDesk/github-actions-allow-list-as-code-action/actions/workflows/github-code-scanning/codeql) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 ## Usage
 
@@ -22,15 +22,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.3.4
-
-      - name: Setup node
-        uses: actions/setup-node@v2.1.5
-        with:
-          node-version: 14.x
+        uses: actions/checkout@v5.0.0
 
       - name: Deploy GitHub Actions allow list
-        uses: ActionsDesk/github-actions-allow-list-as-code-action@v1.1.2
+        uses: ActionsDesk/github-actions-allow-list-as-code-action@v3.0.0
         with:
           token: ${{ secrets.ENTERPRISE_ADMIN_TOKEN }}
           enterprise: 'your-enterprise'
@@ -40,18 +35,44 @@ jobs:
 
 ### Action Inputs
 
-| Name              | Description                                                                       | Default                         | Required |
-| :---------------- | :-------------------------------------------------------------------------------- | :------------------------------ | :------- |
-| `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` or `admin:org` scope |                                 | `true`   |
-| `enterprise`      | GitHub Enterprise Cloud account slug                                              |                                 | `false`  |
-| `organization`    | GitHub organization slug                                                          |                                 | `false`  |
-| `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                   | `github-actions-allow-list.yml` | `false`  |
+| Name              | Description                                                                                                     | Default                         | Required |
+| :---------------- | :-------------------------------------------------------------------------------------------------------------- | :------------------------------ | :------- |
+| `token`           | GitHub Personal Access Token ([PAT]) with `admin:enterprise` or `admin:org` scope                               |                                 | `true`   |
+| `organization`    | GitHub organization slug                                                                                        |                                 | `false`  |
+| `enterprise`      | GitHub Enterprise account slug                                                                                  |                                 | `false`  |
+| `allow_list_path` | Path to the GitHub Actions allow list YML within the repository                                                 | `github-actions-allow-list.yml` | `false`  |
+| `gh_api_url`      | GitHub Enterprise Server - URL to the GitHub API endpoint. <br /> Example: `https://github.example.com/api/v3.` | `${{ github.api_url }}`         | `false`  |
 
 ℹ️ Notes for providing `enterprise` or `organization`:
 
 - Either provide `enterprise` to update the [GitHub Enterprise Cloud's actions allow list](https://docs.github.com/en/github/setting-up-and-managing-your-enterprise/setting-policies-for-organizations-in-your-enterprise-account/enforcing-github-actions-policies-in-your-enterprise-account#allowing-specific-actions-to-run), or `organization` to update a single [organization's allow list](https://docs.github.com/en/organizations/managing-organization-settings/disabling-or-limiting-github-actions-for-your-organization#allowing-specific-actions-to-run).
 - Providing both will result in the action run failing with `Please provide only one of: enterprise, organization`.
 - If providing `organization`, but the allow list is handled via [GitHub Enterprise Cloud's actions allow list](https://docs.github.com/en/github/setting-up-and-managing-your-enterprise/setting-policies-for-organizations-in-your-enterprise-account/enforcing-github-actions-policies-in-your-enterprise-account#allowing-specific-actions-to-run), the action run will fail with `Selected actions are already set at the enterprise level`.
+
+## Allow List file
+
+Example content for Allow List file containing `actions:` key and list with two allowed actions with specific versions, one wildcard entry for an entire org, and one wildcard entry for all versions of a specific action:
+
+```yml
+actions:
+  - actionsdesk/github-actions-allow-list-as-code-action@v3.0.0
+  - hashicorp/vault-action@v2.7.4
+  - aquasecurity/tfsec-sarif-action@*
+  - azure/*
+```
+
+## Local Development
+
+To run locally, set the following environment variables, compile with `ncc`, and run with `node`:
+
+```sh
+export GITHUB_WORKSPACE=$(pwd)
+export INPUT_ALLOW_LIST_PATH=allowlist.yml
+export INPUT_ORGANIZATION=my-org # use INPUT_ENTERPRISE for enterprise
+export INPUT_TOKEN=ghp_abcdefg
+npm run build
+node dist/index.js
+```
 
 ## License
 
