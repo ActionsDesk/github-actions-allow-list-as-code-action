@@ -46,8 +46,8 @@
     "test": "eslint ."
   },
   "dependencies": {
-    "@actions/core": "^2.0.1",
-    "@actions/github": "^6.0.1",
+    "@actions/core": "^3.0.0",
+    "@actions/github": "^9.0.0",
     "@octokit/plugin-enterprise-cloud": "^15.2.1",
     "@octokit/plugin-enterprise-server": "^20.0.0",
     "js-yaml": "^4.1.1"
@@ -58,7 +58,7 @@
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-markdown": "^5.1.0",
-    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-prettier": "^5.5.5",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "proxy-agent": "^6.5.0",
