@@ -39,11 +39,11 @@
   "main": "action.js",
   "scripts": {
     "build": "npx @vercel/ncc build action.js -o dist -q -m -s --license licenses.txt",
-    "format": "npx prettier --config-precedence prefer-file --write . && eslint . --fix",
+    "format": "npx prettier --config-precedence prefer-file --write . && eslint . --ignore-pattern dist/ --fix",
     "prebuild": "rimraf dist",
     "prepare": "husky",
     "pretest": "npx eslint-config-prettier .eslintrc.json",
-    "test": "eslint ."
+    "test": "eslint . --ignore-pattern dist/"
   },
   "dependencies": {
     "@actions/core": "^3.0.0",
