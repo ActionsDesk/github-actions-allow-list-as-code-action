@@ -46,8 +46,8 @@
     "test": "eslint . --ignore-pattern dist/"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.1.0",
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
     "@octokit/plugin-enterprise-cloud": "^15.2.1",
     "@octokit/plugin-enterprise-server": "^20.0.0",
     "js-yaml": "^4.1.1"
@@ -56,10 +56,10 @@
     "@eslint/markdown": "^8.0.1",
     "@github/prettier-config": "^0.0.6",
     "@vercel/ncc": "^0.38.4",
-    "eslint": "^10.2.0",
+    "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "globals": "^17.4.0",
+    "globals": "^17.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "proxy-agent": "^8.0.1",
