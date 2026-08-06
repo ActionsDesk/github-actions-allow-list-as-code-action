@@ -1,11 +1,12 @@
 import {join, parse} from 'path'
-import {getInput, isDebug, setFailed, setOutput, info} from '@actions/core'
+import {getInput, isDebug, setFailed, setOutput, setSecret, info} from '@actions/core'
 import ActionPolicy from './utils/ActionPolicy'
 
 // action
 ;(async () => {
   try {
     const token = getInput('token', {required: true})
+    setSecret(token)
     const enterprise = getInput('enterprise', {required: false}) || null
     const organization = getInput('organization', {required: false}) || null
     const ghApiUrl = getInput('gh_api_url', {required: false}) || 'https://api.github.com'
@@ -39,24 +40,24 @@ import ActionPolicy from './utils/ActionPolicy'
     // load current policy
     if (enterprise) await ap.loadCurrentEnterpriseActionsPolicy()
     if (organization) await ap.loadCurrentOrganizationActionsPolicy()
-    info(`✅ Loaded Existing GitHub Actions allow list for ${enterprise || organization}`)
+    info('✅ Loaded Existing GitHub Actions allow list for ' + (enterprise || organization))
 
     // load updated allow list from YAML
     await ap.loadAllowListYAML()
-    info(`✅ Loaded updated allow list from file ${allowListPath}`)
+    info('✅ Loaded updated allow list from file ' + allowListPath)
 
     // save new policy
     if (enterprise) await ap.updateEnterpriseActionsAllowList()
     if (organization) await ap.updateOrganizationActionsAllowList()
-    info(`✅ Updated GitHub Actions allow list for ${enterprise || organization}`)
-    setOutput('output', `GitHub Actions allow list updated for ${enterprise || organization}`)
+    info('✅ Updated GitHub Actions allow list for ' + (enterprise || organization))
+    setOutput('output', 'GitHub Actions allow list updated for ' + (enterprise || organization))
   } catch (error) {
     if (isDebug()) {
       // print stack trace
       console.error(error.stack)
     }
 
-    info(`❗ GitHub Actions allow list update failed with error: ${error.message}`)
+    info('❗ GitHub Actions allow list update failed with error: ' + error.message)
     setFailed(error.message)
   }
 })()
